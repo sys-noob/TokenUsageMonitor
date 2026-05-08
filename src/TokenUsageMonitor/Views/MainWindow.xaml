@@ -8,7 +8,7 @@
         xmlns:conv="clr-namespace:TokenUsageMonitor.Converters"
         xmlns:models="clr-namespace:TokenUsageMonitor.Models"
         mc:Ignorable="d"
-        Title="Coding Plan 用量监控"
+        Title="Token 用量监控"
         Height="420" Width="320"
         WindowStyle="None"
         AllowsTransparency="True"
@@ -278,11 +278,11 @@
             
             <!-- Title Bar -->
             <Grid Grid.Row="0" Height="32" Margin="0,0,0,8">
-                <TextBlock Text="Coding Plan 用量监控" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource PrimaryTextBrush}" VerticalAlignment="Center"/>
+                <TextBlock Text="Token 用量监控" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource PrimaryTextBrush}" VerticalAlignment="Center"/>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                     <Button Style="{StaticResource IconButtonStyle}" Content="&#xEA8F;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{StaticResource SecondaryTextBrush}" Command="{Binding RefreshCommand}" ToolTip="刷新"/>
                     <Button Style="{StaticResource IconButtonStyle}" Content="&#xE713;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{StaticResource SecondaryTextBrush}" Margin="4,0,0,0" ToolTip="设置"/>
-                    <Button Style="{StaticResource IconButtonStyle}" Content="&#xE708;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{StaticResource SecondaryTextBrush}" Margin="4,0,0,0" ToolTip="夜间模式"/>
+                    <Button Style="{StaticResource IconButtonStyle}" Content="&#xE708;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{StaticResource SecondaryTextBrush}" Margin="4,0,0,0" ToolTip="夜间模式" Command="{Binding ToggleDarkModeCommand}"/>
                     <Button Style="{StaticResource IconButtonStyle}" Content="&#xEA8F;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{StaticResource SecondaryTextBrush}" Margin="4,0,0,0" ToolTip="通知"/>
                 </StackPanel>
             </Grid>

@@ -30,6 +30,9 @@ public partial class MainViewModel : ObservableObject
     private string _lastUpdateTime = "刚刚更新";
 
     [ObservableProperty]
+    private bool _isDarkMode;
+
+    [ObservableProperty]
     private ObservableCollection<UsageItem> _usageCards = new();
 
     [ObservableProperty]
@@ -122,6 +125,13 @@ public partial class MainViewModel : ObservableObject
     private void ToggleTokenMode(string mode)
     {
         IsTokenMode = mode == "Token";
+    }
+
+    [RelayCommand]
+    private void ToggleDarkMode()
+    {
+        Services.ThemeManager.ToggleTheme();
+        IsDarkMode = Services.ThemeManager.IsDarkMode;
     }
 
     private void LoadMockData()

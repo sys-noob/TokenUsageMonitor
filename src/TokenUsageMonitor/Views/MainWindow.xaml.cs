@@ -17,4 +17,9 @@ public partial class MainWindow : Window
         base.OnMouseLeftButtonDown(e);
         DragMove();
     }
+
+    private void CloseButton_Click(object sender, RoutedEventArgs e)
+    {
+        Close();
+    }
 }

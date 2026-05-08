@@ -9,4 +9,6 @@ public class UsageItem
     public string TotalText { get; set; } = string.Empty;
     public string TimeRangeText { get; set; } = string.Empty;
     public string DetailText { get; set; } = string.Empty;
+
+    public string DisplayText => $"{UsedText} / {TotalText}";
 }

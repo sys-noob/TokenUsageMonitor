@@ -1,4 +1,5 @@
 using System.Windows;
+using System.Windows.Input;
 using TokenUsageMonitor.ViewModels;
 
 namespace TokenUsageMonitor.Views;
@@ -9,5 +10,11 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         DataContext = new MainViewModel();
+    }
+
+    protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
+    {
+        base.OnMouseLeftButtonDown(e);
+        DragMove();
     }
 }

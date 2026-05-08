@@ -288,7 +288,7 @@
             </Grid>
             
             <!-- Platform Tabs -->
-            <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,12">
+            <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,12">
                 <ToggleButton Content="智谱" Style="{StaticResource PlatformTabButtonStyle}" IsChecked="{Binding SelectedPlatform.Name, Converter={StaticResource StringEqualityConverter}, ConverterParameter='智谱'}" Command="{Binding SwitchPlatformCommand}" CommandParameter="{Binding Platforms[0]}"/>
                 <ToggleButton Content="MiniMax" Style="{StaticResource PlatformTabButtonStyle}" Margin="4,0,0,0" IsChecked="{Binding SelectedPlatform.Name, Converter={StaticResource StringEqualityConverter}, ConverterParameter='MiniMax'}" Command="{Binding SwitchPlatformCommand}" CommandParameter="{Binding Platforms[1]}"/>
                 <ToggleButton Content="DeepSeek" Style="{StaticResource PlatformTabButtonStyle}" Margin="4,0,0,0" IsChecked="{Binding SelectedPlatform.Name, Converter={StaticResource StringEqualityConverter}, ConverterParameter='DeepSeek'}" Command="{Binding SwitchPlatformCommand}" CommandParameter="{Binding Platforms[2]}"/>

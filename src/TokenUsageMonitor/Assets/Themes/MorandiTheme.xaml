@@ -10,7 +10,7 @@
 
     <!-- Platform Brand Colors -->
     <SolidColorBrush x:Key="GlmBrandBrush" Color="#C8B8A8"/>
-    <SolidColorBrush x:Key="MiniMaxBrandBrush" Color="#A8B8C8"/>
+    <SolidColorBrush x:Key="KimiBrandBrush" Color="#A8B8C8"/>
     <SolidColorBrush x:Key="DeepSeekBrandBrush" Color="#B8A8B8"/>
 
     <!-- Progress Bar Colors -->

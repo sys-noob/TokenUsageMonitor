@@ -7,7 +7,7 @@ namespace TokenUsageMonitor.Views;
 public class PlatformTemplateSelector : DataTemplateSelector
 {
     public DataTemplate? ZhipuTemplate { get; set; }
-    public DataTemplate? MiniMaxTemplate { get; set; }
+    public DataTemplate? KimiTemplate { get; set; }
     public DataTemplate? DeepSeekTemplate { get; set; }
 
     public override DataTemplate? SelectTemplate(object item, DependencyObject container)
@@ -16,8 +16,8 @@ public class PlatformTemplateSelector : DataTemplateSelector
         {
             return platform.Name switch
             {
-                "智谱" => ZhipuTemplate,
-                "MiniMax" => MiniMaxTemplate,
+                "GLM" => ZhipuTemplate,
+                "KIMI" => KimiTemplate,
                 "DeepSeek" => DeepSeekTemplate,
                 _ => ZhipuTemplate
             };

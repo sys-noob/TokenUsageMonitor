@@ -173,10 +173,10 @@
             </StackPanel>
         </DataTemplate>
 
-        <!-- MiniMax DataTemplate -->
-        <DataTemplate x:Key="MiniMaxTemplate" DataType="{x:Type models:PlatformInfo}">
+        <!-- KIMI DataTemplate -->
+        <DataTemplate x:Key="KimiTemplate" DataType="{x:Type models:PlatformInfo}">
             <ScrollViewer Style="{StaticResource CustomScrollViewerStyle}" VerticalScrollBarVisibility="Auto">
-                <ItemsControl ItemsSource="{Binding DataContext.MiniMaxItems, RelativeSource={RelativeSource AncestorType=ContentPresenter}}">
+                <ItemsControl ItemsSource="{Binding DataContext.KimiItems, RelativeSource={RelativeSource AncestorType=ContentPresenter}}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,0,8">
@@ -187,7 +187,7 @@
                                     </Grid>
                                     <TextBlock Text="{Binding SubTitle}" FontSize="10" Foreground="{StaticResource SecondaryTextBrush}" Margin="0,2,0,0"/>
                                     <Border Height="4" Background="{StaticResource ProgressBarBackgroundBrush}" Margin="0,6,0,0" CornerRadius="2">
-                                        <Rectangle Fill="{StaticResource MiniMaxBrandBrush}" HorizontalAlignment="Left" RadiusX="2" RadiusY="2">
+                                        <Rectangle Fill="{StaticResource KimiBrandBrush}" HorizontalAlignment="Left" RadiusX="2" RadiusY="2">
                                             <Rectangle.Width>
                                                 <Binding Path="Percentage">
                                                     <Binding.Converter>
@@ -289,8 +289,8 @@
             
             <!-- Platform Tabs -->
             <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,12">
-                <ToggleButton Content="智谱" Style="{StaticResource PlatformTabButtonStyle}" IsChecked="{Binding SelectedPlatform.Name, Converter={StaticResource StringEqualityConverter}, ConverterParameter='智谱'}" Command="{Binding SwitchPlatformCommand}" CommandParameter="{Binding Platforms[0]}"/>
-                <ToggleButton Content="MiniMax" Style="{StaticResource PlatformTabButtonStyle}" Margin="4,0,0,0" IsChecked="{Binding SelectedPlatform.Name, Converter={StaticResource StringEqualityConverter}, ConverterParameter='MiniMax'}" Command="{Binding SwitchPlatformCommand}" CommandParameter="{Binding Platforms[1]}"/>
+                <ToggleButton Content="GLM" Style="{StaticResource PlatformTabButtonStyle}" IsChecked="{Binding SelectedPlatform.Name, Converter={StaticResource StringEqualityConverter}, ConverterParameter='GLM'}" Command="{Binding SwitchPlatformCommand}" CommandParameter="{Binding Platforms[0]}"/>
+                <ToggleButton Content="KIMI" Style="{StaticResource PlatformTabButtonStyle}" Margin="4,0,0,0" IsChecked="{Binding SelectedPlatform.Name, Converter={StaticResource StringEqualityConverter}, ConverterParameter='KIMI'}" Command="{Binding SwitchPlatformCommand}" CommandParameter="{Binding Platforms[1]}"/>
                 <ToggleButton Content="DeepSeek" Style="{StaticResource PlatformTabButtonStyle}" Margin="4,0,0,0" IsChecked="{Binding SelectedPlatform.Name, Converter={StaticResource StringEqualityConverter}, ConverterParameter='DeepSeek'}" Command="{Binding SwitchPlatformCommand}" CommandParameter="{Binding Platforms[2]}"/>
             </StackPanel>
             
@@ -300,7 +300,7 @@
                     <ContentControl.ContentTemplateSelector>
                         <local:PlatformTemplateSelector 
                             ZhipuTemplate="{StaticResource ZhipuTemplate}"
-                            MiniMaxTemplate="{StaticResource MiniMaxTemplate}"
+                            KimiTemplate="{StaticResource KimiTemplate}"
                             DeepSeekTemplate="{StaticResource DeepSeekTemplate}"/>
                     </ContentControl.ContentTemplateSelector>
                 </ContentControl>

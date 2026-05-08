@@ -33,7 +33,7 @@ public partial class MainViewModel : ObservableObject
     private ObservableCollection<UsageItem> _usageCards = new();
 
     [ObservableProperty]
-    private ObservableCollection<UsageItem> _miniMaxItems = new();
+    private ObservableCollection<UsageItem> _kimiItems = new();
 
     [ObservableProperty]
     private ObservableCollection<ServiceStatusItem> _deepSeekServices = new();
@@ -63,15 +63,15 @@ public partial class MainViewModel : ObservableObject
     {
         Platforms.Add(new PlatformInfo
         {
-            Name = "智谱",
-            DisplayName = "智谱",
+            Name = "GLM",
+            DisplayName = "GLM",
             BrandBrush = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#C8B8A8")!),
             IsPro = true
         });
         Platforms.Add(new PlatformInfo
         {
-            Name = "MiniMax",
-            DisplayName = "MiniMax",
+            Name = "KIMI",
+            DisplayName = "KIMI",
             BrandBrush = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#A8B8C8")!),
             IsPro = false
         });
@@ -126,21 +126,21 @@ public partial class MainViewModel : ObservableObject
 
     private void LoadMockData()
     {
-        var platformName = SelectedPlatform?.Name ?? "智谱";
+        var platformName = SelectedPlatform?.Name ?? "GLM";
 
         UsageCards.Clear();
-        MiniMaxItems.Clear();
+        KimiItems.Clear();
         DeepSeekServices.Clear();
         ChartData.Clear();
         HealthData.Clear();
 
         switch (platformName)
         {
-            case "智谱":
+            case "GLM":
                 LoadZhipuData();
                 break;
-            case "MiniMax":
-                LoadMiniMaxData();
+            case "KIMI":
+                LoadKimiData();
                 break;
             case "DeepSeek":
                 LoadDeepSeekData();
@@ -199,9 +199,9 @@ public partial class MainViewModel : ObservableObject
         }
     }
 
-    private void LoadMiniMaxData()
+    private void LoadKimiData()
     {
-        MiniMaxItems.Add(new UsageItem
+        KimiItems.Add(new UsageItem
         {
             Title = "MiniMax-M*",
             SubTitle = "04/25 14:35 - 04/25 18:35",
@@ -210,7 +210,7 @@ public partial class MainViewModel : ObservableObject
             TotalText = "4500"
         });
 
-        MiniMaxItems.Add(new UsageItem
+        KimiItems.Add(new UsageItem
         {
             Title = "speech-hd",
             SubTitle = "04/25 02:35 - 04/26 02:35",
@@ -219,7 +219,7 @@ public partial class MainViewModel : ObservableObject
             TotalText = "19000"
         });
 
-        MiniMaxItems.Add(new UsageItem
+        KimiItems.Add(new UsageItem
         {
             Title = "MiniMax-Hailuo-2.3-Fast-6s-768p",
             SubTitle = "04/23 14:35 - 04/30 14:35",
@@ -228,7 +228,7 @@ public partial class MainViewModel : ObservableObject
             TotalText = "133000"
         });
 
-        MiniMaxItems.Add(new UsageItem
+        KimiItems.Add(new UsageItem
         {
             Title = "music-2.5",
             SubTitle = "04/25 02:35 - 04/26 02:35",

@@ -46,3 +46,4 @@ release/*.pdb
 
 # Reference materials (local only)
 reference/
+tmp

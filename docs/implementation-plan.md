@@ -2,7 +2,7 @@
 
 ## 项目概述
 
-采用莫兰迪低饱和配色，构建 Windows 桌面 WPF 应用。需求规格见 [requirements.md](requirements.md)，视觉规格见 [design.md](design.md)。
+Windows 桌面 WPF 应用，UI 遵循 Windows 原生设计风格，使用系统主题色。需求规格见 [requirements.md](requirements.md)，设计规格见 [design.md](design.md)。
 
 执行报告：[implement/execution-report.md](implement/execution-report.md)
 
@@ -119,15 +119,30 @@
 
 ---
 
+### Phase 8 — UI 风格迁移至 Windows 原生（新增）
+
+当前使用自定义莫兰迪色板（`MorandiTheme.xaml` / `MorandiDarkTheme.xaml`），深色模式视觉效果差。改为使用 Windows 系统主题色。
+
+| # | 任务 | 说明 |
+|---|------|------|
+| 8.1 | 浅色主题改用 `SystemColors` | 移除 `MorandiTheme.xaml` 中的自定义色刷，换用 `{DynamicResource {x:Static SystemColors.WindowBrushKey}}` 等系统资源 |
+| 8.2 | 深色主题废弃 | 删除 `MorandiDarkTheme.xaml`，系统深色模式由 Windows 自动提供正确的系统颜色 |
+| 8.3 | 进度条使用系统强调色 | `SystemColors.HighlightBrush` 替换 `ProgressBarFillBrush` |
+| 8.4 | 平台品牌色保留 | GLM/KIMI/DeepSeek 三个平台色作为唯一自定义色，保持卡片区分度 |
+| 8.5 | 清理 ThemeManager | 简化或移除自定义主题切换逻辑，只保留"跟随系统/浅色/深色"选择 |
+
+---
+
 ## 待完成清单
 
 | # | 任务 | 阶段 | 预估 |
 |---|------|------|------|
-| 1 | API 端点验证（GLM/KIMI） | Phase 3 | 30min |
-| 2 | 并发测试结果展示 UI | Phase 4 | 15min |
-| 3 | 图表精细化（比例/轴标签/Tooltip） | Phase 7 | 60min |
-| 4 | Tab 切换过渡动画 | Phase 5 | 20min |
-| 5 | 开机自启注册表写入 | Phase 2 | 15min |
+| 1 | **UI 风格迁移至 Windows 原生** | Phase 8 | 60min |
+| 2 | API 端点验证（GLM/KIMI） | Phase 3 | 30min |
+| 3 | 并发测试结果展示 UI | Phase 4 | 15min |
+| 4 | 图表精细化（比例/轴标签/Tooltip） | Phase 7 | 60min |
+| 5 | Tab 切换过渡动画 | Phase 5 | 20min |
+| 6 | 开机自启注册表写入 | Phase 2 | 15min |
 
 ---
 
@@ -144,3 +159,4 @@
 | 滚动条动画 | ObjectAnimationUsingKeyFrames | StaticResource.Color 非法 |
 | 窗口动画 | Storyboard.Clone() | Resource 中 Storyboard 只能 Begin 一次 |
 | 托盘线程 | Dispatcher.Invoke | WinForms 线程不能操作 WPF 控件 |
+| UI 风格 | Windows 原生 | 莫兰迪深色主题视觉效果差，改用系统色 + 跟随系统 |

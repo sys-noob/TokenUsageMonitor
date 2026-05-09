@@ -114,8 +114,10 @@
 
 ### 4.1 数据模型
 
+主数据模型——描述单个平台的配额状态，UI 层的卡片/列表/服务项均映射到此结构：
+
 ```csharp
-// 平台配额信息
+// 平台配额信息（统一数据模型）
 public class QuotaInfo
 {
     public string PlatformName { get; set; }      // "GLM Coding Plan"
@@ -124,12 +126,44 @@ public class QuotaInfo
     public double TotalAmount { get; set; }        // 总额度
     public string Unit { get; set; }               // "tokens" / "cny" / "usd"
     public DateTime? ExpiryDate { get; set; }      // 过期时间（如有）
-    public QuotaStatus Status { get; set; }        // Normal / Error / Loading
+    public QuotaStatus Status { get; set; }        // Normal / Error / Loading / Timeout
     public string ErrorMessage { get; set; }       // 错误描述
     public DateTime LastUpdated { get; set; }      // 数据更新时间
+
+    // 展示用辅助属性
+    public string DisplayPercent => $"{UsedAmount / TotalAmount * 100:F0}%";
+    public double Percentage => UsedAmount / Math.Max(TotalAmount, 1) * 100;
 }
 
 public enum QuotaStatus { Normal, Error, Loading, Timeout }
+```
+
+界面层附加模型（UI 专用，不与 API 数据模型混淆）：
+
+```csharp
+// 平台元信息（Tab 切换、品牌色）
+public class PlatformInfo
+{
+    public string Name { get; set; }              // "GLM" / "KIMI" / "DeepSeek"
+    public string DisplayName { get; set; }        // 展示名称
+    public bool IsPro { get; set; }                // PRO 订阅标识
+}
+
+// 服务状态条目（DeepSeek 等平台的服务健康度列表）
+public class ServiceStatusItem
+{
+    public string Name { get; set; }
+    public string StatusText { get; set; }         // "运行正常" / "异常"
+    public double Percentage { get; set; }         // 99.86
+    public bool IsHealthy { get; set; }
+}
+
+// 图表数据点
+public class ChartDataPoint
+{
+    public string Label { get; set; }              // X 轴标签
+    public List<double> Values { get; set; }       // 堆叠数据
+}
 ```
 
 ### 4.2 API接口规格
@@ -139,6 +173,7 @@ public enum QuotaStatus { Normal, Error, Loading, Timeout }
 Endpoint: GET https://open.bigmodel.cn/api/paas/v4/user/info
 Headers: Authorization: Bearer {api_key}
 Response: { "data": { "total_quota": 10000, "used_quota": 1234 } }
+状态: ⚠ 未验证，需参考智谱官方 API 文档确认
 ```
 
 **KIMI (Moonshot)**
@@ -146,6 +181,7 @@ Response: { "data": { "total_quota": 10000, "used_quota": 1234 } }
 Endpoint: GET https://api.moonshot.cn/v1/users/me/balance
 Headers: Authorization: Bearer {api_key}
 Response: { "data": { "available_balance": 8765, "total_balance": 10000 } }
+状态: ⚠ 未验证，需参考 Moonshot 官方 API 文档确认
 ```
 
 **DeepSeek**
@@ -153,24 +189,32 @@ Response: { "data": { "available_balance": 8765, "total_balance": 10000 } }
 Endpoint: GET https://api.deepseek.com/user/balance
 Headers: Authorization: Bearer {api_key}
 Response: { "balance": "78.90", "total_balance": "100.00", "currency": "CNY" }
+状态: ✅ 端点已确认
 ```
 
-> **注**: 以上端点为假设/参考结构，实际开发时需根据各平台最新文档调整。
+> 实现时优先对接 DeepSeek（端点确定），GLM 和 KIMI 需在开发时查阅最新 API 文档并适配响应结构。API 客户端应通过 `IApiClient` 接口抽象，每个平台独立实现，支持 10s 超时和取消令牌。
 
 ### 4.3 配置文件
 
+非敏感配置存储在 `%AppData%/TokenUsageMonitor/appsettings.json`：
+
 ```json
 {
-  "apiKeys": {
-    "glm": "encrypted_key_here",
-    "kimi": "encrypted_key_here",
-    "deepseek": "encrypted_key_here"
-  },
   "refreshIntervalMinutes": 5,
   "autoHideOnLostFocus": true,
   "startWithWindows": false,
   "theme": "morandi_light"
 }
+```
+
+API Key 使用 DPAPI 单独加密存储，不写入明文配置文件：
+
+```
+%AppData%/TokenUsageMonitor/
+├── appsettings.json           公共配置（明文）
+├── keys.glm.encrypted         GLM API Key（DPAPI 加密）
+├── keys.kimi.encrypted        KIMI API Key（DPAPI 加密）
+└── keys.deepseek.encrypted    DeepSeek API Key（DPAPI 加密）
 ```
 
 ---

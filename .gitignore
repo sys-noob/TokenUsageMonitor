@@ -49,4 +49,5 @@ reference/
 tmp
 
 docs/1
-docs/2tests/**/obj/
+docs/2
+tests/**/obj/

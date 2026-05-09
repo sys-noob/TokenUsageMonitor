@@ -59,7 +59,7 @@ Windows 桌面 WPF 应用，UI 遵循 Windows 原生设计风格，使用系统�
 
 ### Phase 2 — 设置窗口与安全存储
 
-进度: ████████░░ 90%
+进度: ██████████ 100%
 
 | # | 任务 | 状态 |
 |---|------|------|
@@ -67,7 +67,7 @@ Windows 桌面 WPF 应用，UI 遵循 Windows 原生设计风格，使用系统�
 | 2.2 | DPAPI 加密 | ✅ SecureStorageService |
 | 2.3 | 配置读写 | ✅ SettingsService |
 | 2.4 | 首次启动引导 | ✅ 检测无 Key → 弹出设置 |
-| 2.5 | 开机自启 | ❌ StartWithWindows 开关存在但未写注册表 |
+| 2.5 | 开机自启 | ✅ StartupService 写入 HKCU\...\Run |
 
 ### Phase 3 — API 集成
 
@@ -75,31 +75,33 @@ Windows 桌面 WPF 应用，UI 遵循 Windows 原生设计风格，使用系统�
 
 | # | 任务 | 状态 |
 |---|------|------|
-| 3.1-3.6 | 客户端+刷新服务 | ✅ |
+| 3.1-3.6 | 客户端+刷新服务 | ⚠️ 代码存在，端点和响应结构需更新 |
 | 3.7 | MainViewModel 接入 | ✅ apiKeys 加载，真实通路 |
 | 3.8 | 数据缓存 | ✅ DataCacheService |
 | 3.9 | 自动刷新 | ✅ DispatcherTimer |
-| 3.10 | API 端点验证 | ❌ GLM/KIMI 端点未验证 |
+| 3.10 | API 端点更正 | ❌ 需按 cc-switch 验证的端点重写客户端 |
+
+> **发现**：cc-switch 揭示了 GLM/KIMI/DeepSeek 的真实端点和响应结构，与我们现有的 GlmApiClient/KimiApiClient/DeepSeekApiClient 均不匹配，需重写。详见 requirements.md §4.2。
 
 ### Phase 4 — 并发测试
 
-进度: ██████░░░░ 70%
+进度: ██████████ 100%
 
 | # | 任务 | 状态 |
 |---|------|------|
 | 4.1 | ConcurrentTestResult | ✅ |
 | 4.2 | ConcurrentTestCommand | ✅ |
 | 4.3 | 并发测试按钮 | ✅ Footer LoadSpinner |
-| 4.4 | 测试结果展示 UI | ❌ 延迟毫秒未在界面展示 |
+| 4.4 | 测试结果展示 UI | ✅ Footer WrapPanel 显示平台+✓/✗+延迟/错误 |
 
 ### Phase 5 — 动画打磨
 
-进度: █████░░░░░ 55%
+进度: ██████████ 100%
 
 | # | 任务 | 状态 |
 |---|------|------|
 | 5.1-5.5 | Storyboard/Converter/Spinner/脉冲/SmoothWidth | ✅ |
-| 5.6 | Tab 切换过渡 | ❌ |
+| 5.6 | Tab 切换过渡 | ✅ ContentControl 外 Border Opacity 1→0→1 动画 |
 
 ### Phase 6 — 夜间模式
 
@@ -113,23 +115,22 @@ Windows 桌面 WPF 应用，UI 遵循 Windows 原生设计风格，使用系统�
 
 ### Phase 7 — 图表精细化
 
-进度: ░░░░░░░░░░ 0%
+进度: ██████████ 100%
 
-未开始。数据为 Random.Shared 占位。
+- ✅ ChartNormalizationConverter 比例归一化 (MaxHeight=60)
+- ✅ X轴标签每3个显示一个 (ShowLabel)
+- ✅ Tooltip 显示完整数据
+- ✅ 折线图数据点圆点 (HealthDataToEllipsePositionsConverter)
 
 ---
 
-### Phase 8 — UI 风格迁移至 Windows 原生（新增）
+### Phase 8 — UI 风格迁移至 Windows 原生（新增）✅ 已完成
 
-当前使用自定义莫兰迪色板（`MorandiTheme.xaml` / `MorandiDarkTheme.xaml`），深色模式视觉效果差。改为使用 Windows 系统主题色。
-
-| # | 任务 | 说明 |
-|---|------|------|
-| 8.1 | 浅色主题改用 `SystemColors` | 移除 `MorandiTheme.xaml` 中的自定义色刷，换用 `{DynamicResource {x:Static SystemColors.WindowBrushKey}}` 等系统资源 |
-| 8.2 | 深色主题废弃 | 删除 `MorandiDarkTheme.xaml`，系统深色模式由 Windows 自动提供正确的系统颜色 |
-| 8.3 | 进度条使用系统强调色 | `SystemColors.HighlightBrush` 替换 `ProgressBarFillBrush` |
-| 8.4 | 平台品牌色保留 | GLM/KIMI/DeepSeek 三个平台色作为唯一自定义色，保持卡片区分度 |
-| 8.5 | 清理 ThemeManager | 简化或移除自定义主题切换逻辑，只保留"跟随系统/浅色/深色"选择 |
+- ✅ MorandiTheme.xaml 改用 SystemColors 动态资源（Window/ControlLight/WindowText/GrayText/ControlDark/Control/Highlight）
+- ✅ MorandiDarkTheme.xaml 已删除
+- ✅ Success/Error 改为 Win11 固定色 `#10893E` / `#C42B1C`
+- ✅ 平台品牌色保留（GLM `#C8B8A8` / KIMI `#A8B8C8` / DeepSeek `#B8A8B8`）
+- ✅ ThemeManager 简化：System→Light→Dark 循环，DWM 暗色模式 API，持久化到 Settings
 
 ---
 
@@ -138,7 +139,7 @@ Windows 桌面 WPF 应用，UI 遵循 Windows 原生设计风格，使用系统�
 | # | 任务 | 阶段 | 预估 |
 |---|------|------|------|
 | 1 | **UI 风格迁移至 Windows 原生** | Phase 8 | 60min |
-| 2 | API 端点验证（GLM/KIMI） | Phase 3 | 30min |
+| 2 | API 客户端重写（按 cc-switch 端点） | Phase 3 | 45min |
 | 3 | 并发测试结果展示 UI | Phase 4 | 15min |
 | 4 | 图表精细化（比例/轴标签/Tooltip） | Phase 7 | 60min |
 | 5 | Tab 切换过渡动画 | Phase 5 | 20min |

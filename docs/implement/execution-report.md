@@ -100,11 +100,27 @@ dotnet build → 已成功生成，0 错误，0 警告
 
 ---
 
+---
+
+## 第四轮 — cc-switch 端点发现
+
+**发现**：cc-switch (`github.com/farion1231/cc-switch`) 实现了相同三平台的用量查询，端点与我们的 requirements.md 完全不同：
+
+| 平台 | 原假设端点 | 实际端点 (cc-switch) |
+|------|-----------|---------------------|
+| GLM | `open.bigmodel.cn/api/paas/v4/user/info` | `api.z.ai/api/monitor/usage/quota/limit` (不含 Bearer) |
+| KIMI | `api.moonshot.cn/v1/users/me/balance` | `api.kimi.com/coding/v1/usages` |
+| DeepSeek | `api.deepseek.com/user/balance` ✅ | 相同，但响应结构不同 (`balance_infos` 数组) |
+
+**影响**：现有 `GlmApiClient`、`KimiApiClient`、`DeepSeekApiClient` 均需重写。
+
+---
+
 ## 当前剩余工作
 
 | # | 任务 | 说明 |
 |---|------|------|
-| 1 | API 端点验证 | GLM/KIMI 端点未实际验证 |
+| 1 | API 客户端重写 | GLM/KIMI/DeepSeek 按 cc-switch 端点重写 |
 | 2 | 并发测试结果展示 UI | 延迟毫秒未在界面展示 |
 | 3 | 图表精细化 | 数据仍为 Random.Shared 占位 |
 | 4 | Tab 切换过渡动画 | |

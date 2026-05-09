@@ -168,31 +168,59 @@ public class ChartDataPoint
 
 ### 4.2 API接口规格
 
+> 端点来源：cc-switch (github.com/farion1231/cc-switch) 已验证的生产级实现。
+
 **GLM (智谱AI)**
 ```
-Endpoint: GET https://open.bigmodel.cn/api/paas/v4/user/info
-Headers: Authorization: Bearer {api_key}
-Response: { "data": { "total_quota": 10000, "used_quota": 1234 } }
-状态: ⚠ 未验证，需参考智谱官方 API 文档确认
+Endpoint: GET https://api.z.ai/api/monitor/usage/quota/limit
+Headers: Authorization: {api_key}          ← 注意：不带 Bearer 前缀
+        Content-Type: application/json
+        Accept-Language: en-US,en
+Response: {
+  "success": true,
+  "data": {
+    "level": "pro",
+    "limits": [
+      { "type": "TOKENS_LIMIT", "percentage": 44.0, "nextResetTime": 1774967594803 },
+      { "type": "TOKENS_LIMIT", "percentage": 53.0, "nextResetTime": 2000000000000 }
+    ]
+  }
+}
+解析规则: limits[] 中 type=TOKENS_LIMIT 的条目按 nextResetTime 升序，
+         第 0 条=5小时桶(five_hour)，第 1 条=周限额(weekly_limit)
+状态: ✅ 端点已确认（cc-switch 生产验证）
 ```
 
-**KIMI (Moonshot)**
+**KIMI Coding Plan**
 ```
-Endpoint: GET https://api.moonshot.cn/v1/users/me/balance
+Endpoint: GET https://api.kimi.com/coding/v1/usages
 Headers: Authorization: Bearer {api_key}
-Response: { "data": { "available_balance": 8765, "total_balance": 10000 } }
-状态: ⚠ 未验证，需参考 Moonshot 官方 API 文档确认
+        Accept: application/json
+Response: {
+  "limits": [
+    { "detail": { "limit": 10000, "remaining": 8765, "resetTime": "..." } }
+  ],
+  "usage": { "limit": 100000, "remaining": 50000, "resetTime": "..." }
+}
+解析规则: limits[].detail 数组对应 5 小时桶，usage 对象对应周限额
+状态: ✅ 端点已确认（cc-switch 生产验证）
 ```
 
 **DeepSeek**
 ```
 Endpoint: GET https://api.deepseek.com/user/balance
 Headers: Authorization: Bearer {api_key}
-Response: { "balance": "78.90", "total_balance": "100.00", "currency": "CNY" }
-状态: ✅ 端点已确认
+        Accept: application/json
+Response: {
+  "is_available": true,
+  "balance_infos": [
+    { "currency": "CNY", "total_balance": "100.00", "granted_balance": "50.00", "topped_up_balance": "50.00" }
+  ]
+}
+解析规则: balance_infos[0].total_balance 为总余额，
+         total_balance - granted_balance - topped_up_balance = 已用量
+状态: ✅ 端点已确认（cc-switch 生产验证），响应结构已更新
 ```
-
-> 实现时优先对接 DeepSeek（端点确定），GLM 和 KIMI 需在开发时查阅最新 API 文档并适配响应结构。API 客户端应通过 `IApiClient` 接口抽象，每个平台独立实现，支持 10s 超时和取消令牌。
 
 ### 4.3 配置文件
 

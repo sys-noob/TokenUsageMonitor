@@ -2,7 +2,7 @@
 
 ## 项目概述
 
-基于 `reference/coding-quota-bar.gif` 的 UI 参考，采用莫兰迪低饱和配色，构建 Windows 桌面 WPF 应用。需求规格见 [requirements.md](requirements.md)，视觉规格见 [design.md](design.md)。
+采用莫兰迪低饱和配色，构建 Windows 桌面 WPF 应用。需求规格见 [requirements.md](requirements.md)，视觉规格见 [design.md](design.md)。
 
 ---
 

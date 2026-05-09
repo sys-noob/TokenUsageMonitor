@@ -43,3 +43,6 @@ debug/
 release/*.exe
 release/*.dll
 release/*.pdb
+
+# Reference materials (local only)
+reference/

@@ -44,8 +44,7 @@ TokenUsageMonitor/
 │   ├── requirements.md                 需求文档
 │   ├── design.md                       设计规格文档
 │   └── implementation-plan.md          实现计划
-├── reference/
-│   └── coding-quota-bar.gif            UI 参考
+├── reference/                           UI 设计参考素材
 └── README.md
 ```
 

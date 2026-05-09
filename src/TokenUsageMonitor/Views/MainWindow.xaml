@@ -122,18 +122,10 @@
                         <ToggleButton Content="MCP" Style="{StaticResource ToggleTagButtonStyle}" Margin="4,0,0,0" IsChecked="{Binding DataContext.IsTokenMode, RelativeSource={RelativeSource AncestorType=ContentPresenter}, Converter={StaticResource InverseBooleanConverter}}" Command="{Binding DataContext.ToggleTokenModeCommand, RelativeSource={RelativeSource AncestorType=ContentPresenter}}" CommandParameter="MCP"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                        <ItemsControl ItemsSource="{Binding DataContext.TimeRanges, RelativeSource={RelativeSource AncestorType=ContentPresenter}}">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <StackPanel Orientation="Horizontal"/>
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <ToggleButton Content="{Binding}" Style="{StaticResource TimeRangeButtonStyle}" Margin="2,0,0,0" IsChecked="{Binding DataContext.SelectedTimeRange, RelativeSource={RelativeSource AncestorType=ContentPresenter}, Converter={StaticResource StringEqualityConverter}, ConverterParameter={Binding}}" Command="{Binding DataContext.SwitchTimeRangeCommand, RelativeSource={RelativeSource AncestorType=ContentPresenter}}" CommandParameter="{Binding}"/>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
+                        <ToggleButton Content="本日" Style="{StaticResource TimeRangeButtonStyle}" Margin="2,0,0,0" IsChecked="{Binding DataContext.SelectedTimeRange, RelativeSource={RelativeSource AncestorType=ContentPresenter}, Converter={StaticResource StringEqualityConverter}, ConverterParameter='本日'}" Command="{Binding DataContext.SwitchTimeRangeCommand, RelativeSource={RelativeSource AncestorType=ContentPresenter}}" CommandParameter="本日"/>
+                        <ToggleButton Content="24h" Style="{StaticResource TimeRangeButtonStyle}" Margin="2,0,0,0" IsChecked="{Binding DataContext.SelectedTimeRange, RelativeSource={RelativeSource AncestorType=ContentPresenter}, Converter={StaticResource StringEqualityConverter}, ConverterParameter='24h'}" Command="{Binding DataContext.SwitchTimeRangeCommand, RelativeSource={RelativeSource AncestorType=ContentPresenter}}" CommandParameter="24h"/>
+                        <ToggleButton Content="7天" Style="{StaticResource TimeRangeButtonStyle}" Margin="2,0,0,0" IsChecked="{Binding DataContext.SelectedTimeRange, RelativeSource={RelativeSource AncestorType=ContentPresenter}, Converter={StaticResource StringEqualityConverter}, ConverterParameter='7天'}" Command="{Binding DataContext.SwitchTimeRangeCommand, RelativeSource={RelativeSource AncestorType=ContentPresenter}}" CommandParameter="7天"/>
+                        <ToggleButton Content="30天" Style="{StaticResource TimeRangeButtonStyle}" Margin="2,0,0,0" IsChecked="{Binding DataContext.SelectedTimeRange, RelativeSource={RelativeSource AncestorType=ContentPresenter}, Converter={StaticResource StringEqualityConverter}, ConverterParameter='30天'}" Command="{Binding DataContext.SwitchTimeRangeCommand, RelativeSource={RelativeSource AncestorType=ContentPresenter}}" CommandParameter="30天"/>
                     </StackPanel>
                 </Grid>
                 

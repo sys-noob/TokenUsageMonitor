@@ -6,11 +6,16 @@ using System.Windows.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using TokenUsageMonitor.Models;
+using System.Threading.Tasks;
+using System.Diagnostics;
+using TokenUsageMonitor.Services;
 
 namespace TokenUsageMonitor.ViewModels;
 
 public partial class MainViewModel : ObservableObject
 {
+    private readonly QuotaRefreshService _quotaRefreshService = new();
+    private readonly Dictionary<string, string> _apiKeys = new();
     [ObservableProperty]
     private string _title = "Coding Plan 用量监控";
 
@@ -46,6 +51,15 @@ public partial class MainViewModel : ObservableObject
 
     [ObservableProperty]
     private ObservableCollection<LineChartDataPoint> _healthData = new();
+
+    [ObservableProperty]
+    private bool _isRefreshing;
+
+    [ObservableProperty]
+    private ObservableCollection<QuotaInfo> _quotaInfos = new();
+
+    [ObservableProperty]
+    private ObservableCollection<ConcurrentTestResult> _concurrentTestResults = new();
 
     [ObservableProperty]
     private string _totalUsageText = "5.15M";
@@ -109,10 +123,36 @@ public partial class MainViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void Refresh()
+    private async Task Refresh()
     {
-        LastUpdateTime = $"{DateTime.Now:HH:mm:ss} 更新";
-        LoadMockData();
+        IsRefreshing = true;
+        LastUpdateTime = $"{DateTime.Now:HH:mm:ss} 更新中...";
+        try
+        {
+            if (_apiKeys.Count == 0 || _apiKeys.All(kv => string.IsNullOrWhiteSpace(kv.Value)))
+            {
+                LoadMockData();
+                return;
+            }
+
+            var results = await _quotaRefreshService.RefreshAllAsync(_apiKeys);
+            QuotaInfos.Clear();
+            foreach (var result in results.Values)
+            {
+                QuotaInfos.Add(result);
+            }
+
+            MapQuotaInfosToCollections();
+        }
+        catch (Exception)
+        {
+            LoadMockData();
+        }
+        finally
+        {
+            IsRefreshing = false;
+            LastUpdateTime = $"{DateTime.Now:HH:mm:ss} 更新";
+        }
     }
 
     [RelayCommand]
@@ -132,6 +172,89 @@ public partial class MainViewModel : ObservableObject
     {
         Services.ThemeManager.ToggleTheme();
         IsDarkMode = Services.ThemeManager.IsDarkMode;
+    }
+
+    [RelayCommand]
+    private async Task ConcurrentTest()
+    {
+        ConcurrentTestResults.Clear();
+        IsRefreshing = true;
+        try
+        {
+            var tasks = new List<Task<ConcurrentTestResult>>();
+
+            foreach (var kvp in _apiKeys.Where(x => !string.IsNullOrWhiteSpace(x.Value)))
+            {
+                var platformId = kvp.Key;
+                var apiKey = kvp.Value;
+                tasks.Add(Task.Run(async () =>
+                {
+                    var sw = Stopwatch.StartNew();
+                    try
+                    {
+                        IApiClient? client = platformId switch
+                        {
+                            "GLM" => new GlmApiClient(SharedHttpClient.Instance),
+                            "KIMI" => new KimiApiClient(SharedHttpClient.Instance),
+                            "DeepSeek" => new DeepSeekApiClient(SharedHttpClient.Instance),
+                            _ => null
+                        };
+
+                        if (client == null)
+                        {
+                            return new ConcurrentTestResult
+                            {
+                                PlatformName = platformId,
+                                Success = false,
+                                ErrorMessage = "Unknown platform"
+                            };
+                        }
+
+                        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+                        await client.GetQuotaAsync(apiKey, cts.Token);
+                        sw.Stop();
+                        return new ConcurrentTestResult
+                        {
+                            PlatformName = platformId,
+                            Success = true,
+                            LatencyMs = (int)sw.ElapsedMilliseconds
+                        };
+                    }
+                    catch (Exception ex)
+                    {
+                        sw.Stop();
+                        return new ConcurrentTestResult
+                        {
+                            PlatformName = platformId,
+                            Success = false,
+                            LatencyMs = (int)sw.ElapsedMilliseconds,
+                            ErrorMessage = ex.Message
+                        };
+                    }
+                }));
+            }
+
+            if (tasks.Count == 0)
+            {
+                ConcurrentTestResults.Add(new ConcurrentTestResult
+                {
+                    PlatformName = "All",
+                    Success = false,
+                    ErrorMessage = "No API keys configured"
+                });
+                return;
+            }
+
+            var results = await Task.WhenAll(tasks);
+            foreach (var result in results)
+            {
+                ConcurrentTestResults.Add(result);
+            }
+        }
+        finally
+        {
+            IsRefreshing = false;
+        }
     }
 
     private void LoadMockData()
@@ -258,6 +381,150 @@ public partial class MainViewModel : ObservableObject
             TotalText = "¥100.00",
             DetailText = "赠送余额 ¥30.00    充值余额 ¥20.00"
         });
+
+        DeepSeekServices.Add(new ServiceStatusItem
+        {
+            Name = "API 服务",
+            StatusText = "运行正常",
+            Percentage = 99.86,
+            IsHealthy = true
+        });
+
+        DeepSeekServices.Add(new ServiceStatusItem
+        {
+            Name = "网页对话服务",
+            StatusText = "运行正常",
+            Percentage = 99.0,
+            IsHealthy = true
+        });
+    }
+
+    private void MapQuotaInfosToCollections()
+    {
+        var platformName = SelectedPlatform?.Name ?? "GLM";
+
+        UsageCards.Clear();
+        KimiItems.Clear();
+        DeepSeekServices.Clear();
+        ChartData.Clear();
+        HealthData.Clear();
+
+        switch (platformName)
+        {
+            case "GLM":
+                MapGlmData();
+                break;
+            case "KIMI":
+                MapKimiData();
+                break;
+            case "DeepSeek":
+                MapDeepSeekData();
+                break;
+        }
+    }
+
+    private void MapGlmData()
+    {
+        var glm = QuotaInfos.FirstOrDefault(q => q.PlatformId == "GLM");
+        if (glm != null && glm.Status == QuotaStatus.Normal)
+        {
+            UsageCards.Add(new UsageItem
+            {
+                Title = "GLM 额度",
+                Percentage = glm.Percentage,
+                UsedText = glm.UsedAmount.ToString("F0"),
+                TotalText = glm.TotalAmount.ToString("F0"),
+                TimeRangeText = glm.LastUpdated.ToString("MM月dd日"),
+                DetailText = glm.DisplayPercent
+            });
+        }
+        else if (glm != null)
+        {
+            UsageCards.Add(new UsageItem
+            {
+                Title = "GLM 额度",
+                Percentage = 0,
+                UsedText = "Error",
+                TotalText = glm.TotalAmount.ToString("F0"),
+                DetailText = glm.ErrorMessage
+            });
+        }
+
+        TotalUsageText = IsTokenMode ? "5.15M" : "3.24M";
+        TotalCostText = "¥ 8.99";
+
+        for (int i = 0; i < 20; i++)
+        {
+            ChartData.Add(new ChartDataPoint
+            {
+                Label = $"{i * 2}h",
+                Values = new List<double> { Random.Shared.Next(10, 50), Random.Shared.Next(5, 30), Random.Shared.Next(0, 20) }
+            });
+        }
+
+        for (int i = 0; i < 7; i++)
+        {
+            HealthData.Add(new LineChartDataPoint
+            {
+                Label = $"04-{18 + i}",
+                Value1 = Random.Shared.Next(50, 95),
+                Value2 = Random.Shared.Next(40, 80)
+            });
+        }
+    }
+
+    private void MapKimiData()
+    {
+        var kimi = QuotaInfos.FirstOrDefault(q => q.PlatformId == "KIMI");
+        if (kimi != null && kimi.Status == QuotaStatus.Normal)
+        {
+            KimiItems.Add(new UsageItem
+            {
+                Title = "KIMI 额度",
+                SubTitle = kimi.LastUpdated.ToString("MM/dd HH:mm"),
+                Percentage = kimi.Percentage,
+                UsedText = kimi.UsedAmount.ToString("F0"),
+                TotalText = kimi.TotalAmount.ToString("F0")
+            });
+        }
+        else if (kimi != null)
+        {
+            KimiItems.Add(new UsageItem
+            {
+                Title = "KIMI 额度",
+                SubTitle = "Error",
+                Percentage = 0,
+                UsedText = "Error",
+                TotalText = kimi.TotalAmount.ToString("F0")
+            });
+        }
+    }
+
+    private void MapDeepSeekData()
+    {
+        var deepseek = QuotaInfos.FirstOrDefault(q => q.PlatformId == "DeepSeek");
+        if (deepseek != null && deepseek.Status == QuotaStatus.Normal)
+        {
+            UsageCards.Add(new UsageItem
+            {
+                Title = "总余额",
+                Percentage = deepseek.Percentage,
+                UsedText = deepseek.UsedAmount.ToString("F2"),
+                TotalText = deepseek.TotalAmount.ToString("F2"),
+                DetailText = $"已用 {deepseek.DisplayPercent}"
+            });
+        }
+        else if (deepseek != null)
+        {
+            UsageCards.Add(new UsageItem
+            {
+                Title = "总余额",
+                Percentage = 0,
+                UsedText = "Error",
+                TotalText = deepseek.TotalAmount.ToString("F2"),
+                DetailText = deepseek.ErrorMessage
+            });
+        }
 
         DeepSeekServices.Add(new ServiceStatusItem
         {

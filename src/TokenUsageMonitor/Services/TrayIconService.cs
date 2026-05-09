@@ -37,6 +37,9 @@ public class TrayIconService : IDisposable
         };
 
         _notifyIcon.MouseClick += OnTrayMouseClick;
+
+        // 启动后显示气泡提示，让用户知道程序已运行
+        _notifyIcon.ShowBalloonTip(3000, "Token 用量监控", "程序已启动，单击托盘图标查看用量", ToolTipIcon.Info);
     }
 
     private void OnTrayMouseClick(object? sender, System.Windows.Forms.MouseEventArgs e)

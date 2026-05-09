@@ -8,6 +8,8 @@ public class ChartDataPoint
     public string Label { get; set; } = string.Empty;
     public List<double> Values { get; set; } = new();
     public List<string> SeriesNames { get; set; } = new();
+    public double MaxValue { get; set; }
+    public bool ShowLabel { get; set; }
 }
 
 public class LineChartDataPoint

@@ -85,7 +85,10 @@ public static class SharedHttpClient
 
     static SharedHttpClient()
     {
-        _instance = new HttpClient();
+        _instance = new HttpClient
+        {
+            Timeout = TimeSpan.FromSeconds(10)
+        };
     }
 
     public static HttpClient Instance => _instance;

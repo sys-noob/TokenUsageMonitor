@@ -47,3 +47,6 @@ release/*.pdb
 # Reference materials (local only)
 reference/
 tmp
+
+docs/1
+docs/2tests/**/obj/

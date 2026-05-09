@@ -28,12 +28,21 @@ public class DeepSeekApiClient : IApiClient
             request.Headers.TryAddWithoutValidation("Authorization", $"Bearer {apiKey}");
 
             using var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
-            response.EnsureSuccessStatusCode();
+            var rawBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
 
-            var dto = await response.Content.ReadFromJsonAsync<DeepSeekBalanceResponse>(ct).ConfigureAwait(false);
+            if (!response.IsSuccessStatusCode)
+            {
+                LogResponse($"DeepSeek HTTP {(int)response.StatusCode}", rawBody);
+                if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                    return ErrorResult("API Key 无效");
+                return ErrorResult($"HTTP错误: {(int)response.StatusCode}");
+            }
+
+            var dto = System.Text.Json.JsonSerializer.Deserialize<DeepSeekBalanceResponse>(rawBody);
             if (dto == null)
             {
-                return ErrorResult("Empty response");
+                LogResponse("DeepSeek 解析失败", rawBody);
+                return ErrorResult("响应为空或格式无效");
             }
 
             var total = ParseDouble(dto.TotalBalance);
@@ -57,7 +66,7 @@ public class DeepSeekApiClient : IApiClient
                 PlatformName = "DeepSeek",
                 PlatformId = PlatformId,
                 Status = QuotaStatus.Timeout,
-                ErrorMessage = "Request timed out",
+                ErrorMessage = "请求超时",
                 LastUpdated = DateTime.Now
             };
         }
@@ -69,6 +78,16 @@ public class DeepSeekApiClient : IApiClient
         {
             sw.Stop();
         }
+    }
+
+    private static void LogResponse(string context, string body)
+    {
+        try
+        {
+            var path = System.IO.Path.Combine(System.AppContext.BaseDirectory, "error.log");
+            System.IO.File.AppendAllText(path, $"[{DateTime.Now:HH:mm:ss}] [DeepSeek] {context}: {body}{System.Environment.NewLine}");
+        }
+        catch { }
     }
 
     private static QuotaInfo ErrorResult(string message)

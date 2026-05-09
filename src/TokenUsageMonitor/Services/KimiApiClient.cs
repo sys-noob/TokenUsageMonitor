@@ -26,16 +26,25 @@ public class KimiApiClient : IApiClient
             request.Headers.TryAddWithoutValidation("Authorization", $"Bearer {apiKey}");
 
             using var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
-            response.EnsureSuccessStatusCode();
+            var rawBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
 
-            var wrapper = await response.Content.ReadFromJsonAsync<KimiResponseWrapper>(ct).ConfigureAwait(false);
-            if (wrapper?.Data == null)
+            if (!response.IsSuccessStatusCode)
             {
-                return ErrorResult("Empty or invalid response");
+                LogResponse($"KIMI HTTP {(int)response.StatusCode}", rawBody);
+                if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                    return ErrorResult("API Key 无效");
+                return ErrorResult($"HTTP错误: {(int)response.StatusCode}");
             }
 
-            var total = wrapper.Data.TotalBalance;
-            var available = wrapper.Data.AvailableBalance;
+            var wrapper = System.Text.Json.JsonSerializer.Deserialize<KimiResponseWrapper>(rawBody);
+            if (wrapper?.Data == null)
+            {
+                LogResponse("KIMI 解析失败", rawBody);
+                return ErrorResult("响应为空或格式无效");
+            }
+
+            var total = wrapper.Data.TotalBalance ?? 0;
+            var available = wrapper.Data.AvailableBalance ?? wrapper.Data.Balance ?? 0;
 
             return new QuotaInfo
             {
@@ -55,7 +64,7 @@ public class KimiApiClient : IApiClient
                 PlatformName = "KIMI",
                 PlatformId = PlatformId,
                 Status = QuotaStatus.Timeout,
-                ErrorMessage = "Request timed out",
+                ErrorMessage = "请求超时",
                 LastUpdated = DateTime.Now
             };
         }
@@ -63,6 +72,16 @@ public class KimiApiClient : IApiClient
         {
             return ErrorResult(ex.Message);
         }
+    }
+
+    private static void LogResponse(string context, string body)
+    {
+        try
+        {
+            var path = System.IO.Path.Combine(System.AppContext.BaseDirectory, "error.log");
+            System.IO.File.AppendAllText(path, $"[{DateTime.Now:HH:mm:ss}] [KIMI] {context}: {body}{System.Environment.NewLine}");
+        }
+        catch { }
     }
 
     private static QuotaInfo ErrorResult(string message)
@@ -86,9 +105,12 @@ public class KimiApiClient : IApiClient
     private class KimiData
     {
         [JsonPropertyName("available_balance")]
-        public double AvailableBalance { get; set; }
+        public double? AvailableBalance { get; set; }
+
+        [JsonPropertyName("balance")]
+        public double? Balance { get; set; }
 
         [JsonPropertyName("total_balance")]
-        public double TotalBalance { get; set; }
+        public double? TotalBalance { get; set; }
     }
 }

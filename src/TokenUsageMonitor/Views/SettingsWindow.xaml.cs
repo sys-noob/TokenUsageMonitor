@@ -37,4 +37,16 @@ public partial class SettingsWindow : Window
     {
         _vm.DeepSeekApiKey = DeepSeekPasswordBox.Password;
     }
+
+    private void ComboBox_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
+    {
+        if (sender is System.Windows.Controls.ComboBox cb)
+            cb.IsDropDownOpen = true;
+    }
+
+    private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (sender is System.Windows.Controls.ComboBox cb)
+            cb.IsDropDownOpen = false;
+    }
 }

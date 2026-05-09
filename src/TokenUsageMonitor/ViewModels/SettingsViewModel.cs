@@ -43,7 +43,7 @@ public partial class SettingsViewModel : ObservableObject
         var settings = SettingsService.Instance.Load();
         RefreshIntervalMinutes = settings.RefreshIntervalMinutes;
         AutoHideOnLostFocus = settings.AutoHideOnLostFocus;
-        StartWithWindows = settings.StartWithWindows;
+        StartWithWindows = StartupService.IsStartupEnabled();
         SelectedTheme = settings.Theme switch
         {
             "morandi_light" => "Light",
@@ -89,6 +89,7 @@ public partial class SettingsViewModel : ObservableObject
         };
 
         SettingsService.Instance.Save(settings);
+        StartupService.SetStartup(settings.StartWithWindows);
 
         if (!string.IsNullOrWhiteSpace(GlmApiKey))
             SecureStorageService.Instance.SaveApiKey("GLM", GlmApiKey);

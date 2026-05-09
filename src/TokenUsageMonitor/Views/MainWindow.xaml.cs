@@ -23,11 +23,6 @@ public partial class MainWindow : Window
         DataContext = new MainViewModel();
         LoadSettings();
         Deactivated += OnDeactivated;
-        SourceInitialized += (_, _) =>
-        {
-            Left = -10000;
-            Top = -10000;
-        };
     }
 
     private void LoadSettings()
@@ -50,6 +45,8 @@ public partial class MainWindow : Window
         try
         {
             if (double.IsNaN(Left) || double.IsNaN(Top)) return;
+            // Ignore off-screen positions caused by startup hide trick
+            if (Left < -5000 || Top < -5000) return;
             var settings = SettingsService.Instance.Load();
             settings.WindowLeft = Left;
             settings.WindowTop = Top;
@@ -101,7 +98,6 @@ public partial class MainWindow : Window
 
     public void ShowNearTrayIcon()
     {
-        var logPath = Path.Combine(AppContext.BaseDirectory, "error.log");
         try
         {
             _showTime = DateTime.Now;
@@ -130,23 +126,26 @@ public partial class MainWindow : Window
                 var pos = WindowPositionHelper.CalculatePopupPosition(this, trayPos);
 
                 var screen = System.Windows.Forms.Screen.PrimaryScreen;
-                if (screen == null) { x = pos.X; y = pos.Y; return; }
-                var dpiX = PresentationSource.FromVisual(this)?.CompositionTarget?.TransformFromDevice.M11 ?? 1.0;
-                var dpiY = PresentationSource.FromVisual(this)?.CompositionTarget?.TransformFromDevice.M22 ?? 1.0;
-                var screenW = screen.WorkingArea.Width / dpiX;
-                var screenH = screen.WorkingArea.Height / dpiY;
-                var screenL = screen.WorkingArea.Left / dpiX;
-                var screenT = screen.WorkingArea.Top / dpiY;
-
-                if (pos.X < screenL || pos.X + Width > screenL + screenW
-                    || pos.Y < screenT || pos.Y + Height > screenT + screenH)
+                if (screen == null) { x = pos.X; y = pos.Y; }
+                else
                 {
-                    pos.X = screenL + (screenW - Width) / 2;
-                    pos.Y = screenT + (screenH - Height) / 2;
-                }
+                    var dpiX = PresentationSource.FromVisual(this)?.CompositionTarget?.TransformFromDevice.M11 ?? 1.0;
+                    var dpiY = PresentationSource.FromVisual(this)?.CompositionTarget?.TransformFromDevice.M22 ?? 1.0;
+                    var screenW = screen.WorkingArea.Width / dpiX;
+                    var screenH = screen.WorkingArea.Height / dpiY;
+                    var screenL = screen.WorkingArea.Left / dpiX;
+                    var screenT = screen.WorkingArea.Top / dpiY;
 
-                x = pos.X;
-                y = pos.Y;
+                    if (pos.X < screenL || pos.X + Width > screenL + screenW
+                        || pos.Y < screenT || pos.Y + Height > screenT + screenH)
+                    {
+                        pos.X = screenL + (screenW - Width) / 2;
+                        pos.Y = screenT + (screenH - Height) / 2;
+                    }
+
+                    x = pos.X;
+                    y = pos.Y;
+                }
             }
 
             Left = x;
@@ -161,7 +160,11 @@ public partial class MainWindow : Window
         }
         catch (Exception ex)
         {
-            try { File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] [FATAL] ShowNearTrayIcon: {ex}\n"); }
+            try
+            {
+                var logPath = Path.Combine(AppContext.BaseDirectory, "error.log");
+                File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] [FATAL] ShowNearTrayIcon: {ex}\n");
+            }
             catch { }
         }
     }

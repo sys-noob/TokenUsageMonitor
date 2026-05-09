@@ -64,6 +64,9 @@ public partial class MainViewModel : ObservableObject
     private ObservableCollection<ConcurrentTestResult> _concurrentTestResults = new();
 
     [ObservableProperty]
+    private bool _isSwitchingTab;
+
+    [ObservableProperty]
     private string _totalUsageText = "5.15M";
 
     [ObservableProperty]
@@ -238,6 +241,8 @@ public partial class MainViewModel : ObservableObject
         var window = new Views.SettingsWindow();
         window.Owner = System.Windows.Application.Current.Windows.OfType<System.Windows.Window>().FirstOrDefault();
         window.ShowDialog();
+        // Reload API keys after settings window closes (user may have added new keys)
+        LoadApiKeys();
     }
 
     [RelayCommand]
@@ -378,13 +383,24 @@ public partial class MainViewModel : ObservableObject
         TotalUsageText = IsTokenMode ? "5.15M" : "3.24M";
         TotalCostText = "¥ 8.99";
 
+        double maxValue = 0;
+        var chartPoints = new List<ChartDataPoint>();
         for (int i = 0; i < 20; i++)
         {
-            ChartData.Add(new ChartDataPoint
+            var point = new ChartDataPoint
             {
                 Label = $"{i * 2}h",
-                Values = new List<double> { Random.Shared.Next(10, 50), Random.Shared.Next(5, 30), Random.Shared.Next(0, 20) }
-            });
+                Values = new List<double> { Random.Shared.Next(10, 50), Random.Shared.Next(5, 30), Random.Shared.Next(0, 20) },
+                ShowLabel = i % 3 == 0
+            };
+            chartPoints.Add(point);
+            if (point.Values.Count > 0)
+                maxValue = Math.Max(maxValue, point.Values.Max());
+        }
+        foreach (var point in chartPoints)
+        {
+            point.MaxValue = maxValue;
+            ChartData.Add(point);
         }
 
         for (int i = 0; i < 7; i++)
@@ -519,13 +535,24 @@ public partial class MainViewModel : ObservableObject
         TotalUsageText = IsTokenMode ? "5.15M" : "3.24M";
         TotalCostText = "¥ 8.99";
 
+        double maxValue = 0;
+        var chartPoints = new List<ChartDataPoint>();
         for (int i = 0; i < 20; i++)
         {
-            ChartData.Add(new ChartDataPoint
+            var point = new ChartDataPoint
             {
                 Label = $"{i * 2}h",
-                Values = new List<double> { Random.Shared.Next(10, 50), Random.Shared.Next(5, 30), Random.Shared.Next(0, 20) }
-            });
+                Values = new List<double> { Random.Shared.Next(10, 50), Random.Shared.Next(5, 30), Random.Shared.Next(0, 20) },
+                ShowLabel = i % 3 == 0
+            };
+            chartPoints.Add(point);
+            if (point.Values.Count > 0)
+                maxValue = Math.Max(maxValue, point.Values.Max());
+        }
+        foreach (var point in chartPoints)
+        {
+            point.MaxValue = maxValue;
+            ChartData.Add(point);
         }
 
         for (int i = 0; i < 7; i++)

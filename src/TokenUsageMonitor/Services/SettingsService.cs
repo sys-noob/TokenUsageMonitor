@@ -9,7 +9,9 @@ public class AppSettings
     public int RefreshIntervalMinutes { get; set; } = 5;
     public bool AutoHideOnLostFocus { get; set; } = true;
     public bool StartWithWindows { get; set; } = false;
-    public string Theme { get; set; } = "morandi_light";
+    public string Theme { get; set; } = "System";
+    public double WindowLeft { get; set; } = double.NaN;
+    public double WindowTop { get; set; } = double.NaN;
 }
 
 public class SettingsService

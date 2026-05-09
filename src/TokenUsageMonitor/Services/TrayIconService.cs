@@ -46,7 +46,8 @@ public class TrayIconService : IDisposable
     {
         if (e.Button == MouseButtons.Left)
         {
-            ToggleMainWindow();
+            // WinForms NotifyIcon fires on a WinForms thread — marshal to WPF Dispatcher
+            _mainWindow.Dispatcher.Invoke(() => ToggleMainWindow());
         }
     }
 
@@ -54,7 +55,7 @@ public class TrayIconService : IDisposable
     {
         if (_mainWindow.IsVisible)
         {
-            _mainWindow.Hide();
+            _mainWindow.HideWithAnimation();
         }
         else
         {
@@ -88,6 +89,16 @@ public class TrayIconService : IDisposable
 
     private static System.Drawing.Icon CreateTrayIcon()
     {
+        // Load the embedded ICO file from the Assets folder
+        var icoPath = System.IO.Path.Combine(
+            System.AppContext.BaseDirectory,
+            "Assets", "app.ico");
+        if (System.IO.File.Exists(icoPath))
+        {
+            using var stream = new System.IO.FileStream(icoPath, System.IO.FileMode.Open, System.IO.FileAccess.Read);
+            return new System.Drawing.Icon(stream);
+        }
+        // Fallback to a simple generated icon if file is missing
         using var bitmap = new System.Drawing.Bitmap(16, 16);
         using (var g = System.Drawing.Graphics.FromImage(bitmap))
         {
@@ -97,9 +108,14 @@ public class TrayIconService : IDisposable
             g.FillEllipse(brush, 0, 0, 15, 15);
         }
         var hIcon = bitmap.GetHicon();
-        var icon = System.Drawing.Icon.FromHandle(hIcon);
-        _ = DestroyIcon(hIcon);
-        return icon;
+        try
+        {
+            return (System.Drawing.Icon)System.Drawing.Icon.FromHandle(hIcon).Clone();
+        }
+        finally
+        {
+            DestroyIcon(hIcon);
+        }
     }
 
     [System.Runtime.InteropServices.DllImport("user32.dll", SetLastError = true)]

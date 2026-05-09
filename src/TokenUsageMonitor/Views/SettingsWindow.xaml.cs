@@ -6,33 +6,35 @@ namespace TokenUsageMonitor.Views;
 
 public partial class SettingsWindow : Window
 {
+    private readonly SettingsViewModel _vm;
+
     public SettingsWindow()
     {
         InitializeComponent();
-        DataContext = new SettingsViewModel();
+        _vm = new SettingsViewModel();
+        DataContext = _vm;
+        Loaded += (_, _) => ApplyLoadedKeys();
+    }
+
+    private void ApplyLoadedKeys()
+    {
+        GlmPasswordBox.Password = _vm.GlmApiKey;
+        KimiPasswordBox.Password = _vm.KimiApiKey;
+        DeepSeekPasswordBox.Password = _vm.DeepSeekApiKey;
     }
 
     private void GlmPasswordBox_PasswordChanged(object sender, RoutedEventArgs e)
     {
-        if (DataContext is SettingsViewModel vm && sender is PasswordBox pb)
-        {
-            vm.GlmApiKey = pb.Password;
-        }
+        _vm.GlmApiKey = GlmPasswordBox.Password;
     }
 
     private void KimiPasswordBox_PasswordChanged(object sender, RoutedEventArgs e)
     {
-        if (DataContext is SettingsViewModel vm && sender is PasswordBox pb)
-        {
-            vm.KimiApiKey = pb.Password;
-        }
+        _vm.KimiApiKey = KimiPasswordBox.Password;
     }
 
     private void DeepSeekPasswordBox_PasswordChanged(object sender, RoutedEventArgs e)
     {
-        if (DataContext is SettingsViewModel vm && sender is PasswordBox pb)
-        {
-            vm.DeepSeekApiKey = pb.Password;
-        }
+        _vm.DeepSeekApiKey = DeepSeekPasswordBox.Password;
     }
 }

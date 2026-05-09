@@ -26,11 +26,11 @@ public partial class SettingsViewModel : ObservableObject
     private bool _startWithWindows;
 
     [ObservableProperty]
-    private string _selectedTheme = "morandi_light";
+    private string _selectedTheme = "System";
 
     public int[] RefreshIntervalOptions { get; } = { 1, 5, 15, 30, 0 };
 
-    public string[] ThemeOptions { get; } = { "morandi_light", "morandi_dark" };
+    public string[] ThemeOptions { get; } = { "System", "Light", "Dark" };
 
     public SettingsViewModel()
     {
@@ -44,7 +44,13 @@ public partial class SettingsViewModel : ObservableObject
         RefreshIntervalMinutes = settings.RefreshIntervalMinutes;
         AutoHideOnLostFocus = settings.AutoHideOnLostFocus;
         StartWithWindows = settings.StartWithWindows;
-        SelectedTheme = settings.Theme;
+        SelectedTheme = settings.Theme switch
+        {
+            "morandi_light" => "Light",
+            "morandi_dark" => "Dark",
+            "" or null => "System",
+            _ => settings.Theme
+        };
     }
 
     private void LoadApiKeys()
@@ -65,7 +71,7 @@ public partial class SettingsViewModel : ObservableObject
             _ => null
         };
 
-        if (key != null)
+        if (!string.IsNullOrWhiteSpace(key))
         {
             SecureStorageService.Instance.SaveApiKey(platform, key);
         }
@@ -91,17 +97,15 @@ public partial class SettingsViewModel : ObservableObject
         if (!string.IsNullOrWhiteSpace(DeepSeekApiKey))
             SecureStorageService.Instance.SaveApiKey("DeepSeek", DeepSeekApiKey);
 
-        var currentWindows = System.Windows.Application.Current.Windows;
-        if (currentWindows.Count > 0)
+        ThemeManager.ApplySystemTheme();
+
+        foreach (System.Windows.Window window in System.Windows.Application.Current.Windows)
         {
-            foreach (System.Windows.Window window in currentWindows)
+            if (window is Views.SettingsWindow settingsWindow)
             {
-                if (window is Views.SettingsWindow settingsWindow)
-                {
-                    settingsWindow.DialogResult = true;
-                    settingsWindow.Close();
-                    break;
-                }
+                settingsWindow.DialogResult = true;
+                settingsWindow.Close();
+                break;
             }
         }
     }
@@ -109,17 +113,13 @@ public partial class SettingsViewModel : ObservableObject
     [RelayCommand]
     private void Cancel()
     {
-        var currentWindows = System.Windows.Application.Current.Windows;
-        if (currentWindows.Count > 0)
+        foreach (System.Windows.Window window in System.Windows.Application.Current.Windows)
         {
-            foreach (System.Windows.Window window in currentWindows)
+            if (window is Views.SettingsWindow settingsWindow)
             {
-                if (window is Views.SettingsWindow settingsWindow)
-                {
-                    settingsWindow.DialogResult = false;
-                    settingsWindow.Close();
-                    break;
-                }
+                settingsWindow.DialogResult = false;
+                settingsWindow.Close();
+                break;
             }
         }
     }

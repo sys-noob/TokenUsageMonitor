@@ -69,8 +69,30 @@ public partial class App : System.Windows.Application
             MainWindow = mainWindow;
             WriteLog("MainWindow created OK");
 
+            ThemeManager.ApplySystemTheme();
+            WriteLog($"Theme applied. DarkMode={ThemeManager.IsDarkMode}");
+
             _trayIconService = new TrayIconService(mainWindow);
             WriteLog("TrayIconService created OK");
+
+            // 首次启动引导
+            bool hasAnyKey = SecureStorageService.Instance.HasApiKey("GLM")
+                          || SecureStorageService.Instance.HasApiKey("KIMI")
+                          || SecureStorageService.Instance.HasApiKey("DeepSeek");
+
+            if (!hasAnyKey)
+            {
+                WriteLog("No API key found, showing SettingsWindow for first-time setup");
+                var settingsWindow = new Views.SettingsWindow();
+                var result = settingsWindow.ShowDialog();
+                if (result != true)
+                {
+                    WriteLog("User cancelled first-time setup, shutting down");
+                    Shutdown();
+                    return;
+                }
+                WriteLog("First-time setup completed");
+            }
         }
         catch (Exception ex)
         {

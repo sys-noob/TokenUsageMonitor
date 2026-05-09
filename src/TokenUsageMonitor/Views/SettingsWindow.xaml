@@ -244,8 +244,9 @@
                         <ComboBox Style="{StaticResource SettingsComboBoxStyle}"
                                   SelectedValue="{Binding SelectedTheme}"
                                   SelectedValuePath="Tag">
-                            <ComboBoxItem Content="浅色" Tag="morandi_light"/>
-                            <ComboBoxItem Content="深色" Tag="morandi_dark"/>
+                            <ComboBoxItem Content="跟随系统" Tag="System"/>
+                            <ComboBoxItem Content="浅色" Tag="Light"/>
+                            <ComboBoxItem Content="深色" Tag="Dark"/>
                         </ComboBox>
                     </StackPanel>
                 </Border>

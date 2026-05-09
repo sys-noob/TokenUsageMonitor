@@ -1,16 +1,45 @@
 using System;
 using System.Linq;
 using System.Windows;
+using Microsoft.Win32;
 
 namespace TokenUsageMonitor.Services;
 
 public static class ThemeManager
 {
-    private static bool _isDarkMode = false;
+    private static bool _isDarkMode;
 
     public static bool IsDarkMode => _isDarkMode;
 
     public static event Action<string>? ThemeChanged;
+
+    public static bool IsSystemDarkMode()
+    {
+        try
+        {
+            using var key = Registry.CurrentUser.OpenSubKey(
+                @"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize");
+            if (key?.GetValue("AppsUseLightTheme") is int value)
+                return value == 0;
+        }
+        catch { }
+        return false;
+    }
+
+    public static void ApplySystemTheme()
+    {
+        var settings = SettingsService.Instance.Load();
+        var theme = settings.Theme;
+        if (theme == "Light" || theme == "Dark")
+        {
+            ApplyTheme(theme);
+        }
+        else
+        {
+            // First run or reset — follow system
+            ApplyTheme(IsSystemDarkMode() ? "Dark" : "Light");
+        }
+    }
 
     public static void ToggleTheme()
     {
@@ -20,11 +49,10 @@ public static class ThemeManager
     public static void ApplyTheme(string themeName)
     {
         if (string.IsNullOrWhiteSpace(themeName))
-        {
             themeName = "Light";
-        }
 
-        bool isDark = themeName.Equals("Dark", StringComparison.OrdinalIgnoreCase);
+        bool isDark = themeName.Contains("dark", StringComparison.OrdinalIgnoreCase)
+                   || themeName.Contains("Dark", StringComparison.OrdinalIgnoreCase);
 
         string sourcePath = isDark
             ? "Assets/Themes/MorandiDarkTheme.xaml"
@@ -35,7 +63,6 @@ public static class ThemeManager
 
         var mergedDicts = app.Resources.MergedDictionaries;
 
-        // Remove existing theme dictionaries
         for (int i = mergedDicts.Count - 1; i >= 0; i--)
         {
             var dict = mergedDicts[i];
@@ -49,7 +76,6 @@ public static class ThemeManager
             }
         }
 
-        // Add new theme dictionary
         var newDict = new ResourceDictionary
         {
             Source = new Uri(sourcePath, UriKind.Relative)
@@ -65,27 +91,10 @@ public static class ThemeManager
     {
         try
         {
-            var assembly = typeof(ThemeManager).Assembly;
-            var settingsType = assembly.GetType("TokenUsageMonitor.Services.SettingsService");
-            if (settingsType != null)
-            {
-                var method = settingsType.GetMethod(
-                    "SaveThemePreferenceAsync",
-                    System.Reflection.BindingFlags.Public |
-                    System.Reflection.BindingFlags.Static |
-                    System.Reflection.BindingFlags.Instance);
-
-                if (method != null)
-                {
-                    var instance = method.IsStatic ? null : Activator.CreateInstance(settingsType);
-                    method.Invoke(instance, new object?[] { themeName });
-                }
-            }
+            var settings = SettingsService.Instance.Load();
+            settings.Theme = themeName;
+            SettingsService.Instance.Save(settings);
         }
-        catch
-        {
-            // SettingsService not yet available — preference will not be persisted.
-            // Implement ISettingsService and create SettingsService to enable persistence.
-        }
+        catch { }
     }
 }

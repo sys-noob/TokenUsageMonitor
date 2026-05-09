@@ -2,49 +2,59 @@
 
 一个 Windows 桌面工具，常驻系统托盘，聚合展示多 AI 平台（GLM / KIMI / DeepSeek）Token 配额使用情况。采用莫兰迪低饱和配色。
 
-> **当前状态：早期开发阶段** — UI 骨架已完成，API 集成和托盘功能正在开发中。详见 [实现计划](docs/implementation-plan.md)。
+> **当前状态**：功能开发基本完成，API 端点待实测验证。详见 [实现计划](docs/implementation-plan.md)。
 
 ## 平台支持
 
 | 平台 | 功能 | 状态 |
 |------|------|------|
-| GLM Coding Plan | 余额 / 用量查询 | 模拟数据 |
-| KIMI Coding Plan | 余额 / 用量查询 | 模拟数据 |
-| DeepSeek | 余额 / 服务状态查询 | 模拟数据 |
+| GLM Coding Plan | 余额 / 用量查询 | API 代码完成，端点待验证 |
+| KIMI Coding Plan | 余额 / 用量查询 | API 代码完成，端点待验证 |
+| DeepSeek | 余额 / 服务状态查询 | API 代码完成，端点已确认 |
 
 ## 项目结构
 
 ```
 TokenUsageMonitor/
 ├── src/TokenUsageMonitor/
-│   ├── TokenUsageMonitor.csproj     (.NET 10, WPF)
-│   ├── App.xaml / App.xaml.cs
+│   ├── TokenUsageMonitor.csproj     (.NET 10, WPF + WinForms)
+│   ├── App.xaml / App.xaml.cs      入口：托盘初始化、异常处理、首次引导
 │   ├── Views/
-│   │   ├── MainWindow.xaml / .cs       主弹窗
-│   │   └── PlatformTemplateSelector.cs  平台内容切换
+│   │   ├── MainWindow.xaml / .cs         主弹窗 + 动画
+│   │   ├── SettingsWindow.xaml / .cs     设置窗口
+│   │   └── PlatformTemplateSelector.cs   平台内容切换
 │   ├── ViewModels/
-│   │   └── MainViewModel.cs            主视图模型 + 模拟数据
+│   │   ├── MainViewModel.cs             主逻辑：刷新、并发测试、API 集成
+│   │   └── SettingsViewModel.cs         设置逻辑：Key/间隔/主题
 │   ├── Models/
-│   │   ├── PlatformInfo.cs
-│   │   ├── UsageItem.cs
-│   │   ├── ChartDataPoint.cs
-│   │   └── ServiceStatusItem.cs
+│   │   ├── QuotaInfo.cs / PlatformInfo.cs / UsageItem.cs
+│   │   ├── ChartDataPoint.cs / ServiceStatusItem.cs
+│   │   └── ConcurrentTestResult.cs
 │   ├── Services/
-│   │   └── ThemeManager.cs             浅色/深色切换
+│   │   ├── TrayIconService.cs           托盘图标 + 菜单
+│   │   ├── ThemeManager.cs              浅色/深色/跟随系统
+│   │   ├── SettingsService.cs           配置读写（%AppData% JSON）
+│   │   ├── SecureStorageService.cs      DPAPI 加密 Key
+│   │   ├── DataCacheService.cs          数据缓存
+│   │   ├── IApiClient.cs / Glm|Kimi|DeepSeekApiClient.cs   API 客户端
+│   │   └── QuotaRefreshService.cs       并发刷新
 │   ├── Converters/
-│   │   ├── PercentageConverter.cs
-│   │   ├── InverseBooleanConverter.cs
-│   │   ├── StringEqualityConverter.cs
-│   │   └── HealthDataToPointsConverter.cs
+│   │   ├── PercentageConverter.cs / InverseBooleanConverter.cs
+│   │   ├── StringEqualityConverter.cs / HealthDataToPointsConverter.cs
+│   │   └── AnimatedWidthConverter.cs   进度条平滑动画
+│   ├── Helpers/
+│   │   └── WindowPositionHelper.cs      窗口定位
 │   ├── Assets/Themes/
-│   │   └── MorandiTheme.xaml           莫兰迪浅色主题
-│   └── Config/
-│       └── AppSettings.json
+│   │   ├── MorandiTheme.xaml            浅色主题
+│   │   └── MorandiDarkTheme.xaml        深色主题
+│   ├── Assets/app.ico                   托盘图标
+│   └── Config/AppSettings.json          默认配置
 ├── docs/
-│   ├── requirements.md                 需求文档
-│   ├── design.md                       设计规格文档
-│   └── implementation-plan.md          实现计划
-├── reference/                           UI 设计参考素材
+│   ├── requirements.md                  需求文档
+│   ├── design.md                        设计规格
+│   ├── implementation-plan.md           实现计划
+│   ├── review-2026-05-09.md             首次审查报告
+│   └── implement/execution-report.md    执行报告
 └── README.md
 ```
 
@@ -52,15 +62,6 @@ TokenUsageMonitor/
 
 - Windows 10 (1903+) / Windows 11
 - [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
-- Visual Studio 2022 或 VS Code + C# Dev Kit
-
-## 依赖
-
-| NuGet 包 | 用途 |
-|----------|------|
-| `CommunityToolkit.Mvvm` (8.2.2) | MVVM 源生成器 |
-| `Hardcodet.NotifyIcon.Wpf` (2.0.1) | 系统托盘 |
-| `Microsoft.Extensions.Http` (8.0.0) | HttpClient 工厂 |
 
 ## 本地运行
 

@@ -49,15 +49,8 @@
                         </Border>
                         
                         <Border Grid.Row="1" Grid.ColumnSpan="3" Height="6" Background="{StaticResource ProgressBarBackgroundBrush}" Margin="0,8,0,0" CornerRadius="3">
-                            <Rectangle Fill="{StaticResource GlmBrandBrush}" HorizontalAlignment="Left" RadiusX="3" RadiusY="3">
-                                <Rectangle.Width>
-                                    <Binding Path="DataContext.UsageCards[0].Percentage" RelativeSource="{RelativeSource AncestorType=ContentPresenter}">
-                                        <Binding.Converter>
-                                            <conv:PercentageConverter MaxWidth="260"/>
-                                        </Binding.Converter>
-                                    </Binding>
-                                </Rectangle.Width>
-                            </Rectangle>
+                            <Rectangle Fill="{StaticResource GlmBrandBrush}" HorizontalAlignment="Left" RadiusX="3" RadiusY="3"
+                                conv:AnimatedWidthConverter.SmoothWidth="{Binding DataContext.UsageCards[0].Percentage, RelativeSource={RelativeSource AncestorType=ContentPresenter}, Converter={StaticResource PercentageConverter}}"/>
                         </Border>
                         
                         <TextBlock Grid.Row="2" Grid.ColumnSpan="3" Text="{Binding DataContext.UsageCards[0].TimeRangeText, RelativeSource={RelativeSource AncestorType=ContentPresenter}}" FontSize="10" Foreground="{StaticResource SecondaryTextBrush}" HorizontalAlignment="Right" Margin="0,4,0,0"/>
@@ -79,15 +72,8 @@
                                 <TextBlock Text="{Binding DataContext.UsageCards[1].Percentage, RelativeSource={RelativeSource AncestorType=ContentPresenter}, StringFormat={}{0}%}" FontSize="14" FontWeight="Bold" Foreground="{StaticResource PrimaryTextBrush}" HorizontalAlignment="Right"/>
                             </Grid>
                             <Border Height="4" Background="{StaticResource ProgressBarBackgroundBrush}" Margin="0,6,0,0" CornerRadius="2">
-                                <Rectangle Fill="{StaticResource ProgressBarFillBrush}" HorizontalAlignment="Left" RadiusX="2" RadiusY="2">
-                                    <Rectangle.Width>
-                                        <Binding Path="DataContext.UsageCards[1].Percentage" RelativeSource="{RelativeSource AncestorType=ContentPresenter}">
-                                            <Binding.Converter>
-                                                <conv:PercentageConverter MaxWidth="110"/>
-                                            </Binding.Converter>
-                                        </Binding>
-                                    </Rectangle.Width>
-                                </Rectangle>
+                                <Rectangle Fill="{StaticResource ProgressBarFillBrush}" HorizontalAlignment="Left" RadiusX="2" RadiusY="2"
+                                    conv:AnimatedWidthConverter.SmoothWidth="{Binding DataContext.UsageCards[1].Percentage, RelativeSource={RelativeSource AncestorType=ContentPresenter}, Converter={StaticResource SmallPercentageConverter}}"/>
                             </Border>
                             <TextBlock Text="{Binding DataContext.UsageCards[1].TimeRangeText, RelativeSource={RelativeSource AncestorType=ContentPresenter}}" FontSize="10" Foreground="{StaticResource SecondaryTextBrush}" HorizontalAlignment="Right" Margin="0,4,0,0"/>
                         </StackPanel>
@@ -100,15 +86,8 @@
                                 <TextBlock Text="{Binding DataContext.UsageCards[2].Percentage, RelativeSource={RelativeSource AncestorType=ContentPresenter}, StringFormat={}{0}%}" FontSize="14" FontWeight="Bold" Foreground="{StaticResource PrimaryTextBrush}" HorizontalAlignment="Right"/>
                             </Grid>
                             <Border Height="4" Background="{StaticResource ProgressBarBackgroundBrush}" Margin="0,6,0,0" CornerRadius="2">
-                                <Rectangle Fill="{StaticResource ProgressBarFillBrush}" HorizontalAlignment="Left" RadiusX="2" RadiusY="2">
-                                    <Rectangle.Width>
-                                        <Binding Path="DataContext.UsageCards[2].Percentage" RelativeSource="{RelativeSource AncestorType=ContentPresenter}">
-                                            <Binding.Converter>
-                                                <conv:PercentageConverter MaxWidth="110"/>
-                                            </Binding.Converter>
-                                        </Binding>
-                                    </Rectangle.Width>
-                                </Rectangle>
+                                <Rectangle Fill="{StaticResource ProgressBarFillBrush}" HorizontalAlignment="Left" RadiusX="2" RadiusY="2"
+                                    conv:AnimatedWidthConverter.SmoothWidth="{Binding DataContext.UsageCards[2].Percentage, RelativeSource={RelativeSource AncestorType=ContentPresenter}, Converter={StaticResource SmallPercentageConverter}}"/>
                             </Border>
                             <TextBlock Text="{Binding DataContext.UsageCards[2].TimeRangeText, RelativeSource={RelativeSource AncestorType=ContentPresenter}}" FontSize="10" Foreground="{StaticResource SecondaryTextBrush}" HorizontalAlignment="Right" Margin="0,4,0,0"/>
                         </StackPanel>
@@ -179,15 +158,8 @@
                                     </Grid>
                                     <TextBlock Text="{Binding SubTitle}" FontSize="10" Foreground="{StaticResource SecondaryTextBrush}" Margin="0,2,0,0"/>
                                     <Border Height="4" Background="{StaticResource ProgressBarBackgroundBrush}" Margin="0,6,0,0" CornerRadius="2">
-                                        <Rectangle Fill="{StaticResource KimiBrandBrush}" HorizontalAlignment="Left" RadiusX="2" RadiusY="2">
-                                            <Rectangle.Width>
-                                                <Binding Path="Percentage">
-                                                    <Binding.Converter>
-                                                        <conv:PercentageConverter MaxWidth="260"/>
-                                                    </Binding.Converter>
-                                                </Binding>
-                                            </Rectangle.Width>
-                                        </Rectangle>
+                                        <Rectangle Fill="{StaticResource KimiBrandBrush}" HorizontalAlignment="Left" RadiusX="2" RadiusY="2"
+                                            conv:AnimatedWidthConverter.SmoothWidth="{Binding Percentage, Converter={StaticResource PercentageConverter}}"/>
                                     </Border>
                                     <TextBlock Text="{Binding DisplayText}" FontSize="10" Foreground="{StaticResource SecondaryTextBrush}" Margin="0,4,0,0"/>
                                 </StackPanel>
@@ -210,15 +182,8 @@
                         </Grid>
                         <TextBlock Text="{Binding DataContext.UsageCards[0].DetailText, RelativeSource={RelativeSource AncestorType=ContentPresenter}}" FontSize="10" Foreground="{StaticResource SecondaryTextBrush}" Margin="0,2,0,0"/>
                         <Border Height="6" Background="{StaticResource ProgressBarBackgroundBrush}" Margin="0,8,0,0" CornerRadius="3">
-                            <Rectangle Fill="{StaticResource DeepSeekBrandBrush}" HorizontalAlignment="Left" RadiusX="3" RadiusY="3">
-                                <Rectangle.Width>
-                                    <Binding Path="DataContext.UsageCards[0].Percentage" RelativeSource="{RelativeSource AncestorType=ContentPresenter}">
-                                        <Binding.Converter>
-                                            <conv:PercentageConverter MaxWidth="260"/>
-                                        </Binding.Converter>
-                                    </Binding>
-                                </Rectangle.Width>
-                            </Rectangle>
+                            <Rectangle Fill="{StaticResource DeepSeekBrandBrush}" HorizontalAlignment="Left" RadiusX="3" RadiusY="3"
+                                conv:AnimatedWidthConverter.SmoothWidth="{Binding DataContext.UsageCards[0].Percentage, RelativeSource={RelativeSource AncestorType=ContentPresenter}, Converter={StaticResource PercentageConverter}}"/>
                         </Border>
                     </StackPanel>
                 </Border>
@@ -238,15 +203,8 @@
                                         <TextBlock Text="{Binding Percentage, StringFormat={}{0}%}" FontSize="14" FontWeight="Bold" Foreground="{StaticResource PrimaryTextBrush}" HorizontalAlignment="Right"/>
                                     </Grid>
                                     <Border Height="6" Background="{StaticResource ProgressBarBackgroundBrush}" Margin="0,6,0,0" CornerRadius="3">
-                                        <Rectangle Fill="{StaticResource SuccessBrush}" HorizontalAlignment="Left" RadiusX="3" RadiusY="3">
-                                            <Rectangle.Width>
-                                                <Binding Path="Percentage">
-                                                    <Binding.Converter>
-                                                        <conv:PercentageConverter MaxWidth="260"/>
-                                                    </Binding.Converter>
-                                                </Binding>
-                                            </Rectangle.Width>
-                                        </Rectangle>
+                                        <Rectangle Fill="{StaticResource SuccessBrush}" HorizontalAlignment="Left" RadiusX="3" RadiusY="3"
+                                            conv:AnimatedWidthConverter.SmoothWidth="{Binding Percentage, Converter={StaticResource PercentageConverter}}"/>
                                     </Border>
                                 </StackPanel>
                             </Border>
@@ -256,7 +214,8 @@
             </StackPanel>
         </DataTemplate>
     </Window.Resources>
-    <Border Background="{StaticResource MainBackgroundBrush}"
+    <Border x:Name="RootBorder"
+            Background="{StaticResource MainBackgroundBrush}"
             CornerRadius="12"
             BorderBrush="{StaticResource BorderBrush}"
             BorderThickness="1">
@@ -273,7 +232,7 @@
                 <TextBlock Text="Token 用量监控" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource PrimaryTextBrush}" VerticalAlignment="Center"/>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                     <Button Style="{StaticResource IconButtonStyle}" Content="&#xE72C;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{StaticResource SecondaryTextBrush}" Command="{Binding RefreshCommand}" ToolTip="刷新"/>
-                    <Button Style="{StaticResource IconButtonStyle}" Content="&#xE713;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{StaticResource SecondaryTextBrush}" Margin="4,0,0,0" ToolTip="设置"/>
+                    <Button Style="{StaticResource IconButtonStyle}" Content="&#xE713;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{StaticResource SecondaryTextBrush}" Margin="4,0,0,0" ToolTip="设置" Command="{Binding OpenSettingsCommand}"/>
                     <Button Style="{StaticResource IconButtonStyle}" Content="&#xE793;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{StaticResource SecondaryTextBrush}" Margin="4,0,0,0" ToolTip="夜间模式" Command="{Binding ToggleDarkModeCommand}"/>
                     <Button Style="{StaticResource IconButtonStyle}" Content="&#xE711;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{StaticResource SecondaryTextBrush}" Margin="4,0,0,0" ToolTip="关闭" Click="CloseButton_Click"/>
                 </StackPanel>
@@ -299,7 +258,17 @@
             </ScrollViewer>
             
             <!-- Footer -->
-            <TextBlock Grid.Row="3" Text="{Binding LastUpdateTime}" FontSize="10" Foreground="{StaticResource SecondaryTextBrush}" HorizontalAlignment="Center" Margin="0,8,0,0"/>
+            <StackPanel Grid.Row="3" HorizontalAlignment="Center" Margin="0,8,0,0">
+                <Button Style="{StaticResource IconButtonStyle}" Command="{Binding ConcurrentTestCommand}" ToolTip="并发测试" HorizontalAlignment="Center">
+                    <Grid>
+                        <TextBlock Text="&#xE7C4;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{StaticResource SecondaryTextBrush}"
+                                   Visibility="{Binding IsRefreshing, Converter={StaticResource InverseBooleanConverter}}"/>
+                        <Control Style="{StaticResource LoadingSpinnerStyle}" Width="14" Height="14"
+                                 Visibility="{Binding IsRefreshing, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                    </Grid>
+                </Button>
+                <TextBlock Text="{Binding LastUpdateTime}" FontSize="10" Foreground="{StaticResource SecondaryTextBrush}" HorizontalAlignment="Center" Margin="0,4,0,0"/>
+            </StackPanel>
         </Grid>
     </Border>
 </Window>

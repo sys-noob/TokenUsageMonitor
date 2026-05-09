@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Media;
+using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using TokenUsageMonitor.Models;
@@ -16,6 +17,7 @@ public partial class MainViewModel : ObservableObject
 {
     private readonly QuotaRefreshService _quotaRefreshService = new();
     private readonly Dictionary<string, string> _apiKeys = new();
+    private DispatcherTimer _refreshTimer = null!;
     [ObservableProperty]
     private string _title = "Coding Plan 用量监控";
 
@@ -73,7 +75,43 @@ public partial class MainViewModel : ObservableObject
     {
         InitializePlatforms();
         SelectedPlatform = Platforms.FirstOrDefault();
-        LoadMockData();
+        LoadApiKeys();
+
+        var cache = DataCacheService.Instance.Load();
+        if (cache != null)
+        {
+            QuotaInfos.Clear();
+            foreach (var item in cache.Values) QuotaInfos.Add(item);
+            MapQuotaInfosToCollections();
+        }
+        else
+        {
+            LoadMockData();
+        }
+
+        _refreshTimer = new DispatcherTimer();
+        _refreshTimer.Tick += async (s, e) => await RefreshInternalAsync();
+        UpdateRefreshTimerInterval();
+    }
+
+    private void LoadApiKeys()
+    {
+        try
+        {
+            var storage = SecureStorageService.Instance;
+            foreach (var platform in new[] { "GLM", "KIMI", "DeepSeek" })
+            {
+                var key = storage.LoadApiKey(platform);
+                if (!string.IsNullOrWhiteSpace(key))
+                {
+                    _apiKeys[platform] = key;
+                }
+            }
+        }
+        catch
+        {
+            // Ignore storage errors on startup
+        }
     }
 
     private void InitializePlatforms()
@@ -125,6 +163,11 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand]
     private async Task Refresh()
     {
+        await RefreshInternalAsync();
+    }
+
+    private async Task RefreshInternalAsync()
+    {
         IsRefreshing = true;
         LastUpdateTime = $"{DateTime.Now:HH:mm:ss} 更新中...";
         try
@@ -143,6 +186,7 @@ public partial class MainViewModel : ObservableObject
             }
 
             MapQuotaInfosToCollections();
+            DataCacheService.Instance.Save(results);
         }
         catch (Exception)
         {
@@ -152,6 +196,20 @@ public partial class MainViewModel : ObservableObject
         {
             IsRefreshing = false;
             LastUpdateTime = $"{DateTime.Now:HH:mm:ss} 更新";
+        }
+    }
+
+    private void UpdateRefreshTimerInterval()
+    {
+        var settings = SettingsService.Instance.Load();
+        if (settings.RefreshIntervalMinutes <= 0)
+        {
+            _refreshTimer.Stop();
+        }
+        else
+        {
+            _refreshTimer.Interval = TimeSpan.FromMinutes(settings.RefreshIntervalMinutes);
+            _refreshTimer.Start();
         }
     }
 
@@ -172,6 +230,14 @@ public partial class MainViewModel : ObservableObject
     {
         Services.ThemeManager.ToggleTheme();
         IsDarkMode = Services.ThemeManager.IsDarkMode;
+    }
+
+    [RelayCommand]
+    private void OpenSettings()
+    {
+        var window = new Views.SettingsWindow();
+        window.Owner = System.Windows.Application.Current.Windows.OfType<System.Windows.Window>().FirstOrDefault();
+        window.ShowDialog();
     }
 
     [RelayCommand]

@@ -116,12 +116,25 @@ dotnet build → 已成功生成，0 错误，0 警告
 
 ---
 
+## 第五轮（2026-05-09 最终轮）— 代码实现
+
+按第四轮发现的端点 + Phase 7/8/2/5 批量实现：
+
+| 阶段 | 内容 | 关键文件 |
+|------|------|----------|
+| Phase 8 | UI 迁移 Windows 原生 | MorandiTheme→SystemColors DynamicResource，DarkTheme.xaml 替代 MorandiDarkTheme.xaml |
+| Phase 3 | API 客户端重写 | 中文错误提示，raw body 日志，cc-switch 端点 |
+| Phase 7 | 图表精细化 | ChartNormalizationConverter，HealthDataToEllipsePositionsConverter，Tooltip |
+| Phase 5 | Tab 过渡 + 并发结果 UI | ContentControl 透明度动画，Footer WrapPanel |
+| Phase 2 | 开机自启 | StartupService 写 HKCU Run |
+| Phase 6 | ThemeManager | DWM 暗色模式 API，System→Light→Dark 循环，300ms 防抖 |
+
+---
+
 ## 当前剩余工作
 
 | # | 任务 | 说明 |
 |---|------|------|
-| 1 | API 客户端重写 | GLM/KIMI/DeepSeek 按 cc-switch 端点重写 |
-| 2 | 并发测试结果展示 UI | 延迟毫秒未在界面展示 |
-| 3 | 图表精细化 | 数据仍为 Random.Shared 占位 |
-| 4 | Tab 切换过渡动画 | |
-| 5 | 开机自启注册表写入 | StartWithWindows 配置项未写注册表 |
+| 1 | 真实 API 连通性测试 | 用真实 Key 验证三平台 |
+| 2 | 高 DPI 适配验证 | 125%/150%/200% 缩放 |
+| 3 | 多显示器测试 | 副屏任务栏定位 |

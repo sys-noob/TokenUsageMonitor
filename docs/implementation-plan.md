@@ -13,7 +13,7 @@ Windows 桌面 WPF 应用，UI 遵循 Windows 原生设计风格，使用系统�
 ### 已具备（全部代码已编写并通过编译）
 - [x] .NET 10 WPF 项目骨架，MVVM 目录结构
 - [x] MainWindow 无边框圆角窗口，鼠标拖拽，淡入淡出动画
-- [x] 莫兰迪浅色/深色主题 `MorandiTheme.xaml` / `MorandiDarkTheme.xaml`
+- [x] Windows 原生主题 `MorandiTheme.xaml` / `DarkTheme.xaml`（系统色 DynamicResource）
 - [x] **系统托盘**：WinForms NotifyIcon，左键弹出/收起，右键菜单，启动气泡提示，`app.ico` 图标文件
 - [x] **窗口定位**：WindowPositionHelper 任务栏四方向 + 位置记忆（关闭时保存，打开时恢复）
 - [x] **设置窗口**：SettingsWindow，API Key 三组密码框（保存后回显正常），刷新间隔、主题、失焦隐藏开关
@@ -71,17 +71,15 @@ Windows 桌面 WPF 应用，UI 遵循 Windows 原生设计风格，使用系统�
 
 ### Phase 3 — API 集成
 
-进度: ████████░░ 85%
+进度: ██████████ 100%
 
 | # | 任务 | 状态 |
 |---|------|------|
-| 3.1-3.6 | 客户端+刷新服务 | ⚠️ 代码存在，端点和响应结构需更新 |
+| 3.1-3.6 | 客户端+刷新服务 | ✅ 按 cc-switch 端点重写，中文错误提示，raw body 日志 |
 | 3.7 | MainViewModel 接入 | ✅ apiKeys 加载，真实通路 |
 | 3.8 | 数据缓存 | ✅ DataCacheService |
 | 3.9 | 自动刷新 | ✅ DispatcherTimer |
-| 3.10 | API 端点更正 | ❌ 需按 cc-switch 验证的端点重写客户端 |
-
-> **发现**：cc-switch 揭示了 GLM/KIMI/DeepSeek 的真实端点和响应结构，与我们现有的 GlmApiClient/KimiApiClient/DeepSeekApiClient 均不匹配，需重写。详见 requirements.md §4.2。
+| 3.10 | API 端点验证 | ✅ 端点已按 cc-switch 验证结果更新（详见 requirements.md §4.2） |
 
 ### Phase 4 — 并发测试
 
@@ -109,9 +107,10 @@ Windows 桌面 WPF 应用，UI 遵循 Windows 原生设计风格，使用系统�
 
 | # | 任务 | 状态 |
 |---|------|------|
-| 6.1 | MorandiDarkTheme.xaml | ✅ |
-| 6.2 | 系统主题跟随 | ✅ 读注册表 AppsUseLightTheme |
+| 6.1 | DarkTheme.xaml（替代 MorandiDarkTheme） | ✅ 系统色 DynamicResource |
+| 6.2 | 系统主题跟随 | ✅ DWM 暗色 API + 注册表 AppsUseLightTheme |
 | 6.3 | 持久化 | ✅ 直接调用 SettingsService |
+| 6.4 | System→Light→Dark 循环 | ✅ ThemeManager.ToggleTheme() |
 
 ### Phase 7 — 图表精细化
 
@@ -136,14 +135,11 @@ Windows 桌面 WPF 应用，UI 遵循 Windows 原生设计风格，使用系统�
 
 ## 待完成清单
 
-| # | 任务 | 阶段 | 预估 |
-|---|------|------|------|
-| 1 | **UI 风格迁移至 Windows 原生** | Phase 8 | 60min |
-| 2 | API 客户端重写（按 cc-switch 端点） | Phase 3 | 45min |
-| 3 | 并发测试结果展示 UI | Phase 4 | 15min |
-| 4 | 图表精细化（比例/轴标签/Tooltip） | Phase 7 | 60min |
-| 5 | Tab 切换过渡动画 | Phase 5 | 20min |
-| 6 | 开机自启注册表写入 | Phase 2 | 15min |
+| # | 任务 | 说明 |
+|---|------|------|
+| 1 | 真实 API 连通性测试 | 用真实 Key 验证三平台客户端能正确解析响应 |
+| 2 | 高 DPI 适配验证 | 125%/150%/200% 缩放测试 |
+| 3 | 多显示器测试 | 任务栏在副屏时的定位验证 |
 
 ---
 

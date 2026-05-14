@@ -1,6 +1,6 @@
 # TokenUsageMonitor
 
-一个 Windows 桌面工具，常驻系统托盘，聚合展示多 AI 平台（GLM / KIMI / DeepSeek）Token 配额使用情况。采用莫兰迪低饱和配色。
+一个 Windows 桌面工具，常驻系统托盘，聚合展示多 AI 平台（GLM / KIMI / DeepSeek）Token 配额使用情况。
 
 > **当前状态**：功能开发基本完成，API 端点待实测验证。详见 [实现计划](docs/implementation-plan.md)。
 
